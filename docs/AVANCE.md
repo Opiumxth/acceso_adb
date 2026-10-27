@@ -128,3 +128,51 @@ También se probaron el CRUD de personas (alta con subtipo, duplicado `ORA-20005
 ### Evidencia
 
 - `docs/evidencia/test_03.txt`
+
+---
+
+## Etapa 3 - Reportes con REF CURSOR (completada)
+
+### Qué se hizo
+
+`sql/04_reportes.sql` crea 9 procedimientos `r_*` (todos `VALID`, sin errores de compilación). Cada uno devuelve un `SYS_REFCURSOR` en el último parámetro (`o_cursor`); el cliente lo abre, recorre y cierra.
+
+| Procedimiento | Parámetros | Contenido |
+|---|---|---|
+| `r_asistencia_seccion` | sección | Por estudiante: presentes, tardanzas, faltas, sesiones cerradas, % de asistencia y estado de la inscripción |
+| `r_asistencia_sesion` (extra) | sesión | Un registro por inscrito de una sesión (`sin_registro` si no hay fila). Lo usará el panel web |
+| `r_alumnos_en_riesgo` | sección (nulo = todas) | Inhabilitados y estudiantes a una falta de serlo (`(faltas + 1) * 100 / sesiones cerradas >= LIMITE_FALTAS_PCT`) |
+| `r_ranking_tardanzas` | desde, hasta | Ranking con `RANK()` de tardanzas, asistencias y % de tardanza |
+| `r_accesos_denegados` | desde, hasta | Denegados agrupados por motivo y zona con `GROUP BY ROLLUP` (subtotal por motivo y total general) |
+| `r_incidencias` | estado, gravedad | Filtros opcionales; las más graves primero |
+| `r_pases_vigentes` | ninguno | Pases activos dentro de su vigencia ahora, con horas restantes |
+| `r_uso_aulas_vs_sesiones` | fecha | Por aula y laboratorio: sesiones y alumnos esperados frente a accesos, personas distintas, asistentes y ocupación sobre el aforo, con una observación (`normal`, `sesion sin accesos`, `uso sin sesion programada`, `sin actividad`) |
+| `r_flujo_por_hora` | fecha, zona (nulo = todas) | Las 24 horas del día con permitidos, denegados, entradas, salidas y personas distintas |
+
+Reglas comunes: las fechas desde/hasta son inclusivas y un valor nulo significa "sin límite"; las entradas inválidas dan `ORA-20001` y los registros inexistentes `ORA-20002`.
+
+### Decisiones tomadas
+
+1. Los reportes de asistencia cuentan solo sesiones **cerradas**, así el porcentaje no se distorsiona con una sesión en curso.
+2. "En riesgo" se definió como "una falta más lo inhabilita". Con pocas sesiones cerradas una sola falta basta para entrar en ese nivel: con 1 falta en 6 sesiones, `(1 + 1) * 100 / 6 = 33.3 %` supera el 30 %, por eso aparecen varios estudiantes. El cálculo usa el total actual de sesiones cerradas (criterio conservador).
+3. `r_asistencia_sesion` se agregó aunque no estaba en la lista, porque la pantalla de asistencia por sesión de la Etapa 7 la necesita.
+4. Las horas de `r_flujo_por_hora` están en hora del servidor (UTC en este contenedor), igual que las marcas guardadas en `accesos`.
+
+### Resultado de `sql/test_04.sql`
+
+Se ejecutó sobre el estado que dejó `test_03` (sesiones 900 y 901 cerradas, accesos y denegaciones de hoy). Cada reporte se imprimió con `VARIABLE` y `PRINT`:
+
+- `r_asistencia_seccion(1)`: 6 estudiantes con 8 sesiones cerradas; 25200004 y 25200005 inhabilitados (3 faltas = 37.5 %).
+- `r_asistencia_sesion(900)`: 25200001 `presente`, 25200002 `tardanza`, tres `falta` y 25200004 `sin_registro` (estaba inhabilitado).
+- `r_alumnos_en_riesgo(NULL)`: 8 filas, 2 `inhabilitado` y 6 `en_riesgo`.
+- `r_ranking_tardanzas`: 10 estudiantes, empate en el puesto 1 con 3 tardanzas (25200003, 25200004, 25200006).
+- `r_accesos_denegados(NULL, NULL)`: 23 denegados en 7 motivos, con subtotales y total general.
+- `r_incidencias(NULL, NULL)` y `('abierta', 'alta')`: 9 incidencias en total; 3 abiertas de gravedad alta.
+- `r_pases_vigentes`: solo el pase del visitante 99000001 (el 1002 fue revocado y el de 99000002 está vencido).
+- `r_uso_aulas_vs_sesiones`: hoy, A-101 con 2 sesiones, 7 accesos y 2 asistentes; hace 7 días, 3 aulas con actividad `normal`.
+- `r_flujo_por_hora`: 24 filas por consulta (ayer en la puerta: entradas de 07:00 a 09:00 y salidas de 12:00 a 19:00).
+- Errores esperados: sección inexistente, estado no válido, rango de fechas al revés y zona inexistente (`ORA-20002`, `ORA-20001`, `ORA-20001`, `ORA-20002`).
+
+### Evidencia
+
+- `docs/evidencia/reportes.txt`

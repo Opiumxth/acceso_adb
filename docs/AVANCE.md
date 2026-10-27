@@ -55,3 +55,76 @@ docker exec -i oracle-xe sqlplus -s 'acceso_owner/"Owner#2026"@XEPDB1' @/tmp/01_
 - `docs/evidencia/etapa1_verificacion.txt`
 
 Las cuatro salidas corresponden a una corrida desde cero (se eliminaron antes los usuarios, roles y tablespaces del proyecto).
+
+---
+
+## Etapa 2 - Procedimientos PL/SQL (completada)
+
+### Qué se hizo
+
+`sql/03_procedimientos.sql` (propietario `acceso_owner`) crea 17 objetos, todos `VALID` y sin errores de compilación:
+
+| Grupo | Objetos |
+|---|---|
+| Parámetros | `f_parametro`, `f_parametro_num` (funciones auxiliares), `p_obtener_parametro` (para clientes sin acceso a la tabla, por ejemplo el punto de acceso) |
+| Acceso | `p_verificar_persona`, `p_registrar_acceso` |
+| Asistencia | `p_cerrar_sesion` |
+| Seguridad | `p_emitir_pase`, `p_revocar_pase`, `p_registrar_restriccion`, `p_levantar_restriccion`, `p_registrar_incidencia`, `p_resolver_incidencia` |
+| Personas | `p_registrar_persona`, `p_modificar_persona`, `p_eliminar_persona`, `p_listar_personas`, `p_buscar_personas` (los dos últimos devuelven `sys_refcursor`) |
+
+Códigos de error (`raise_application_error`): `-20001` entrada inválida, `-20002` registro inexistente, `-20003` estado que no permite la operación, `-20004` parámetro del sistema faltante, `-20005` duplicado, `-20099` error inesperado. Todo procedimiento que modifica datos hace `commit` al final y `rollback` ante cualquier error.
+
+### Cómo decide `p_registrar_acceso` (una sola transacción)
+
+1. Valida las entradas y que el punto exista y esté activo (si no, error, no denegación).
+2. Aplica las reglas en el orden pedido: `codigo_inexistente`, `persona_inactiva`, `rostro_no_coincide`, `persona_restringida` (con incidencia alta), y la autorización por zona (`sin_pase_vigente`, `zona_no_autorizada`, `fuera_de_horario`).
+3. Inserta siempre la fila en `accesos`, permitida o denegada.
+4. Si fue permitido en un aula o laboratorio: el estudiante con inscripción activa y una sesión en la ventana `[inicio - 10 min, inicio + MIN_MAX_TARDANZA]` recibe `presente` o `tardanza` (según `MIN_TARDANZA`); la asistencia existente no se duplica ni se degrada; una sesión `programada` pasa a `en_curso`. El docente solo hace pasar la sesión a `en_curso`.
+5. Si fue denegado: cuenta los denegados de la misma zona y de la misma persona o código en los últimos `MIN_VENTANA_INTENTOS` minutos y, al llegar a `INTENTOS_PARA_INCIDENCIA`, crea una incidencia `intentos_reiterados` (media) salvo que ya exista una abierta equivalente.
+6. Devuelve `o_resultado`, `o_motivo` y `o_id_acceso`. Los umbrales salen de la tabla `parametros`.
+
+### Decisiones tomadas
+
+1. `accesos.motivo` queda en `NULL` cuando el acceso es permitido (el motivo describe solo la denegación).
+2. La apertura de 10 minutos antes del inicio es una constante dentro del procedimiento (no estaba en la lista de parámetros). Las sesiones `cerradas` no reciben asistencias.
+3. La ventana `HH24:MI` de `permisos_zona` se evalúa en la zona horaria del parámetro `ZONA_HORARIA`; el resto de las marcas de tiempo usa la hora del servidor.
+4. `p_cerrar_sesion` suma la falta con la misma condición que el `INSERT ... SELECT` (inscripción activa sin asistencia), y evalúa la inhabilitación sobre todas las inscripciones activas de la sección. Con 6 sesiones cerradas nadie puede cruzar el 30 % por una sola falta más, por eso `test_03` cierra además una sesión extra (901) para demostrar la inhabilitación.
+5. `p_eliminar_persona` hace baja lógica si la persona tiene cualquier historial (accesos, inscripciones, asistencias, restricciones, pases, incidencias o secciones), no solo accesos, porque las claves foráneas impedirían borrarla. Devuelve `baja_logica` o `eliminada`.
+6. Solo puede haber una restricción vigente por persona (`-20005`).
+7. Cada denegación `persona_restringida` genera su propia incidencia alta, como indica la regla d.
+8. Las personas se identifican por su `codigo` (el contenido del QR) en `p_modificar_persona` y `p_eliminar_persona`.
+
+### Errores encontrados durante las pruebas y corregidos
+
+- `ORA-00907` en `p_registrar_acceso`: dentro de un `SELECT`, `at time zone <variable>` no es válido (con una función o una asignación directa sí). Se cambió a una asignación PL/SQL directa. La primera corrida de `test_03` falló por esto en todos los casos de acceso.
+- Validación de cadenas vacías: `length(trim(x)) = 0` nunca se cumple en Oracle (la cadena vacía es `NULL`). Se cambió a `trim(x) is null` en todos los procedimientos. La prueba 8.3 (código en blanco) lo detectó.
+
+### Resultado de `sql/test_03.sql` (datos recién cargados)
+
+| Caso | Resultado obtenido |
+|---|---|
+| `00000000` en la puerta | denegado, `codigo_inexistente`, `id_persona` nulo |
+| `25200009` | denegado, `persona_inactiva` |
+| `25200003` con `rostro_ok = 0` | denegado, `rostro_no_coincide` |
+| `25200010` | denegado, `persona_restringida` + incidencia `alta` |
+| `25200001` en Administración | denegado, `zona_no_autorizada` |
+| ventana horaria que excluye la hora actual | denegado, `fuera_de_horario` |
+| `99000001`: puerta / aula A-101 / biblioteca | permitido / `sin_pase_vigente` / permitido |
+| `99000002` en la puerta | denegado, `sin_pase_vigente` (pase vencido) |
+| docente `10000001` con la sesión 900 `programada` | permitido; la sesión pasa a `en_curso` |
+| `25200001`, sesión 900 con 5 min | permitido; asistencia `presente`; al repetir sigue 1 sola fila |
+| `25200002`, sesión 900 con 20 min | permitido; asistencia `tardanza` |
+| `25200001` otra vez, con 20 min | permitido; sigue `presente` (no se degrada) |
+| `25200007` (no inscrito en S1) | permitido, sin asistencia |
+| `12345678` tres veces seguidas | la tercera crea `intentos_reiterados` (media); la cuarta no la duplica |
+| `p_cerrar_sesion(900)` | 3 faltas, 0 inhabilitados |
+| `p_cerrar_sesion(901)` (sesión extra) | 5 faltas, 1 inhabilitado (25200005, 3 de 8 = 37.5 %) |
+| punto inexistente, `rostro_ok` inválido, código en blanco, método inválido, restricción inexistente | `ORA-20002`, `ORA-20001`, `ORA-20001`, `ORA-20001`, `ORA-20002`; el conteo de `accesos` no cambia (519 antes y después) |
+
+También se probaron el CRUD de personas (alta con subtipo, duplicado `ORA-20005`, modificación, búsqueda, listado de 18 filas, baja lógica y eliminación física), restricciones (registrar, denegar con incidencia alta, levantar y volver a permitir), pases (emitir, entrar, revocar y volver a denegar) e incidencias del vigilante (registrar, `en_revision`, `resuelta`).
+
+`test_03.sql` abre las ventanas horarias de estudiantes y docentes al inicio y las restaura al final, para que el resultado no dependa de la hora de ejecución. Modifica datos: para repetirlo hay que recargar con `99_reset.sql`, `01` y `02`.
+
+### Evidencia
+
+- `docs/evidencia/test_03.txt`

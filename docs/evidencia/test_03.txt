@@ -1,0 +1,367 @@
+
+=====================================================================
+0. PREPARACION
+=====================================================================
+
+HORA_SERVIDOR	    HORA_
+------------------- -----
+2026-10-27 19:19:50 14:19
+
+=====================================================================
+1. p_verificar_persona
+=====================================================================
+-- 1.1 codigo existente (25200001): debe existir = 1
+
+NOMBRE			   TIPO 			ESTADO		  EXISTE
+-------------------------- ---------------------------- ------------- ----------
+Ana Torres Quispe	   estudiante			activo		       1
+-- 1.2 codigo inexistente (00000000): existe = 0 (no es error)
+
+NOMBRE			   TIPO 			ESTADO		  EXISTE
+-------------------------- ---------------------------- ------------- ----------
+									       0
+
+=====================================================================
+2. p_registrar_acceso - DENEGACIONES (no son errores)
+=====================================================================
+-- 2.1 00000000 en la puerta (punto 1): codigo_inexistente, id_persona nulo
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   codigo_inexistente	       1494
+
+ID_ACCESO ID_PERSONA CODIGO_LEIDO	  RESULTADO  MOTIVO
+--------- ---------- -------------------- ---------- ----------------------
+     1494	     00000000		  denegado   codigo_inexistente
+-- 2.2 25200009 (estado inactivo) en la puerta: persona_inactiva
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   persona_inactiva	       1495
+-- 2.3 25200003 con rostro que no coincide (rostro_ok = 0): rostro_no_coincide
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   rostro_no_coincide	       1496
+-- 2.4 25200010 (restriccion vigente): persona_restringida + incidencia alta
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   persona_restringida	       1497
+
+ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN
+------------- ---------------------------- --------- ------------- ----------
+	 1005 persona_restringida	   alta      abierta	   sistema
+-- 2.5 estudiante 25200001 en Administracion (punto 7): zona_no_autorizada
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   zona_no_autorizada	       1498
+-- 2.6 ventana del estudiante en la puerta fuera de la hora actual: fuera_de_horario
+Hora local 14:19: ventana de la puerta movida fuera de la hora actual
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   fuera_de_horario	       1499
+
+=====================================================================
+3. p_registrar_acceso - VISITANTES
+=====================================================================
+-- 3.1 99000001 en la puerta (cualquier pase vale): permitido
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+permitido  -			       1500
+-- 3.2 99000001 en el aula A-101 (punto 4, su pase es de la biblioteca): sin_pase_vigente
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   sin_pase_vigente	       1501
+-- 3.3 99000001 en la biblioteca (punto 3, pase de esa zona): permitido
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+permitido  -			       1502
+-- 3.4 99000002 en la puerta (su pase esta vencido): sin_pase_vigente
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   sin_pase_vigente	       1503
+
+=====================================================================
+4. ASISTENCIA (sesion 900, seccion 1, aula A-101 = punto 4)
+=====================================================================
+-- 4.1 sesion 900 programada que inicia en 3 minutos; el docente 10000001 entra
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+permitido  -			       1504
+
+ ID_SESION ESTADO
+---------- -------------
+       900 en_curso
+-- 4.2 sesion 900 movida a "ahora" (empezo hace 5 min); entra 25200001
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+permitido  -			       1505
+
+CODIGO	  ESTADO	HORA	  ID_ACCESO
+--------- ------------- --------- ---------
+25200001  presente	19:19:51       1505
+-- 4.3 repetir con 25200001: permitido, pero NO se duplica la asistencia
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+permitido  -			       1506
+
+FILAS_25200001_EN_SESION_900
+----------------------------
+			   1
+-- 4.4 la sesion pasa a 20 minutos de retraso; entra 25200002: tardanza
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+permitido  -			       1507
+-- 4.5 25200001 vuelve a pasar con 20 min de retraso: no se degrada a tardanza
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+permitido  -			       1508
+-- 4.6 25200007 (no inscrito en la seccion 1) en el punto 4: permitido sin asistencia
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+permitido  -			       1509
+-- 4.7 asistencias de la sesion 900 hasta ahora (solo 25200001 y 25200002)
+
+CODIGO	  ESTADO	HORA	  ID_ACCESO
+--------- ------------- --------- ---------
+25200001  presente	19:19:51       1505
+25200002  tardanza	19:19:51       1507
+
+=====================================================================
+5. INTENTOS REITERADOS (codigo 12345678, 3 denegados seguidos en la puerta)
+=====================================================================
+-- 5.1 primer intento: sin incidencia
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   codigo_inexistente	       1510
+-- 5.2 segundo intento: sin incidencia
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   codigo_inexistente	       1511
+-- 5.3 tercer intento: se crea la incidencia intentos_reiterados (media)
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   codigo_inexistente	       1512
+-- 5.4 cuarto intento: no se duplica la incidencia abierta
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   codigo_inexistente	       1513
+
+ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN     DESCRIPCION
+------------- ---------------------------- --------- ------------- ---------- ----------------------------------------------------------------------
+	 1006 intentos_reiterados	   media     abierta	   sistema    Intentos denegados reiterados (minimo 3 en 10 min). codigo=[12345678]
+
+=====================================================================
+6. p_cerrar_sesion
+=====================================================================
+-- 6.1 cerrar la sesion 900: falta para los inscritos activos sin asistencia
+--     (S1: 25200001 y 25200002 asistieron; 25200004 esta inhabilitado)
+
+  O_FALTAS O_INHABILITADOS
+---------- ---------------
+	 3		 0
+
+CODIGO	  ESTADO	HORA
+--------- ------------- ---------
+25200001  presente	19:19:51
+25200002  tardanza	19:19:51
+25200003  falta
+25200005  falta
+25200006  falta
+
+CODIGO	  NOMBRE			 FALTAS ESTADO
+--------- -------------------------- ---------- -------------
+25200001  Ana Torres Quispe		      0 activa
+25200002  Luis Ramirez Huaman		      0 activa
+25200003  Maria Gomez Flores		      1 activa
+25200004  Diego Castillo Rojas		      3 inhabilitado
+25200005  Sofia Herrera Diaz		      2 activa
+25200006  Pedro Vargas Leon		      1 activa
+-- 6.2 sesion extra 901 (cerrada sin asistencias): 25200005 llega a 3 faltas
+--     de 8 sesiones (37.5 por ciento >= 30) y queda inhabilitado
+
+  O_FALTAS O_INHABILITADOS
+---------- ---------------
+	 5		 1
+
+CODIGO	  NOMBRE			 FALTAS ESTADO
+--------- -------------------------- ---------- -------------
+25200001  Ana Torres Quispe		      1 activa
+25200002  Luis Ramirez Huaman		      1 activa
+25200003  Maria Gomez Flores		      2 activa
+25200004  Diego Castillo Rojas		      3 inhabilitado
+25200005  Sofia Herrera Diaz		      3 inhabilitado
+25200006  Pedro Vargas Leon		      2 activa
+-- 6.3 cerrar otra vez la sesion 900: error esperado ORA-20003
+Error esperado -> ORA-20003: La sesion 900 ya esta cerrada
+
+=====================================================================
+7. SEGURIDAD Y ADMINISTRACION
+=====================================================================
+-- 7.1 p_registrar_persona: estudiante nuevo 25200012 (personas + estudiantes)
+
+ID_PERSONA_NUEVA
+----------------
+	    1000
+
+ID_PERSONA CODIGO    NOMBRE			TIPO			     ESTADO	   ID_ESCUELA	   CICLO
+---------- --------- -------------------------- ---------------------------- ------------- ---------- ----------
+      1000 25200012  Persona de Prueba		estudiante		     activo		    1	       3
+-- 7.2 codigo repetido: error esperado ORA-20005
+Error esperado -> ORA-20005: Ya existe una persona con el codigo 25200012
+-- 7.3 p_modificar_persona: cambia nombre y correo
+
+CODIGO	  NOMBRE		     CORREO												  ESTADO
+--------- -------------------------- ---------------------------------------------------------------------------------------------------- -------------
+25200012  Persona Modificada	     modificada@campus.test										  activo
+-- 7.4 p_buscar_personas('modificada'): busca por texto
+
+ID_PERSONA CODIGO    NOMBRE			DNI	 CORREO 											      TIPO			   ESTADO
+---------- --------- -------------------------- -------- ---------------------------------------------------------------------------------------------------- ---------------------------- -------------
+FECHA_REGISTRO								    ESCUELA												      CICLO
+--------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------- ----------
+ESPECIALIDAD
+----------------------------------------------------------------------------------------------------
+      1000 25200012  Persona Modificada 	75000099 modificada@campus.test 									      estudiante		   activo
+27-OCT-26 07.19.51.360862 PM						    Ingenieria de Sistemas											  3
+
+
+-- 7.5 p_listar_personas: total de filas
+p_listar_personas devolvio 18 filas (17 de la carga + 1 de prueba)
+-- 7.6 restriccion: se registra, la persona es denegada con incidencia alta y luego se levanta
+
+ID_RESTRICCION
+--------------
+	  1001
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   persona_restringida	       1514
+
+TIPO			     GRAVEDAD  ESTADO	     ORIGEN
+---------------------------- --------- ------------- ----------
+persona_restringida	     alta      abierta	     sistema
+
+ID_RESTRICCION ESTADO	     FECHA_FIN
+-------------- ------------- ----------------
+	  1001 levantada     2026-10-27 19:19
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+permitido  -			       1515
+-- 7.7 pases: se emite un pase para 99000002 al aula A-101 (zona 3), entra, se revoca y vuelve a ser denegado
+
+   ID_PASE
+----------
+      1002
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+permitido  -			       1516
+
+   ID_PASE ESTADO
+---------- -------------
+      1002 revocado
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   sin_pase_vigente	       1517
+-- 7.8 incidencias del vigilante: se registra, pasa a en_revision y se resuelve
+
+ID_INCIDENCIA
+-------------
+	 1008
+
+ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN     DESCRIPCION
+------------- ---------------------------- --------- ------------- ---------- ----------------------------------------------------------------------
+	 1008 puerta_laboratorio_abierta   media     resuelta	   vigilante  Puerta del laboratorio abierta fuera de horario | en_revision 2026-10-
+									      27 19:19: Se avisa al encargado | resuelta 2026-10-27 19:19: Puerta ce
+									      rrada con llave
+
+-- 7.9 p_eliminar_persona: 25200012 tiene accesos, entonces baja logica
+
+ACCION
+------------
+baja_logica
+
+CODIGO	  ESTADO
+--------- -------------
+25200012  inactivo
+
+RESULTADO  MOTIVO		  ID_ACCESO
+---------- ---------------------- ---------
+denegado   persona_inactiva	       1518
+-- 7.10 persona sin historial (25200013): se elimina fisicamente
+
+ACCION
+------------
+eliminada
+
+FILAS_25200013
+--------------
+	     0
+
+=====================================================================
+8. ERRORES INESPERADOS (raise_application_error, sin dejar datos a medias)
+=====================================================================
+8.1 punto inexistente -> ORA-20002: El punto de control 99 no existe
+8.2 rostro_ok invalido -> ORA-20001: p_rostro_ok debe ser 1 (rostro coincide) o 0 (no coincide)
+8.3 codigo vacio -> ORA-20001: El codigo leido es obligatorio
+8.4 metodo invalido -> ORA-20001: Metodo no valido: telepatia
+8.5 restriccion inexistente -> ORA-20002: La restriccion 999999 no existe
+Accesos antes y despues de los 4 llamados fallidos: 519 y 519 (sin cambios)
+
+=====================================================================
+9. RESTAURAR VENTANAS HORARIAS Y RESUMEN
+=====================================================================
+
+TIPO_PERSONA	ZONA			     HORA_ HORA_
+--------------- ---------------------------- ----- -----
+docente 	Puerta Principal	     06:30 23:00
+docente 	Biblioteca Central	     06:30 23:00
+docente 	Aula A-101		     06:30 23:00
+docente 	Aula A-102		     06:30 23:00
+docente 	Laboratorio de Computo 1     06:30 23:00
+docente 	Oficina de Administracion    06:30 23:00
+estudiante	Puerta Principal	     07:00 22:00
+estudiante	Biblioteca Central	     08:00 20:00
+estudiante	Aula A-101		     07:00 22:00
+estudiante	Aula A-102		     07:00 22:00
+estudiante	Laboratorio de Computo 1     08:00 20:00
+-- accesos de esta prueba (hoy, metodo simulado), por resultado y motivo
+
+RESULTADO  MOTIVO		       TOTAL
+---------- ---------------------- ----------
+denegado   codigo_inexistente		   5
+denegado   fuera_de_horario		   1
+denegado   persona_inactiva		   2
+denegado   persona_restringida		   2
+denegado   rostro_no_coincide		   1
+denegado   sin_pase_vigente		   3
+denegado   zona_no_autorizada		   1
+permitido  -				  10
+-- incidencias creadas hoy
+
+ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN
+------------- ---------------------------- --------- ------------- ----------
+	 1005 persona_restringida	   alta      abierta	   sistema
+	 1006 intentos_reiterados	   media     abierta	   sistema
+	 1007 persona_restringida	   alta      abierta	   sistema
+	 1008 puerta_laboratorio_abierta   media     resuelta	   vigilante

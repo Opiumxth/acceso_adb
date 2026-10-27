@@ -1,0 +1,128 @@
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Table created.
+
+
+Index created.
+
+
+Index created.
+
+
+Index created.
+
+
+Index created.
+
+
+Index created.
+
+
+Index created.
+
+
+Index created.
+
+
+Index created.
+
+
+=== Tablas creadas y su tablespace ===
+
+TABLE_NAME	     TABLESPACE_NAME
+-------------------- ------------------
+ACCESOS 	     TS_ACCESO_LOG
+ASISTENCIAS	     TS_ACCESO_LOG
+AUDITORIA	     TS_ACCESO_LOG
+CURSOS		     TS_ACCESO_DATOS
+DOCENTES	     TS_ACCESO_DATOS
+ESCUELAS	     TS_ACCESO_DATOS
+ESTUDIANTES	     TS_ACCESO_DATOS
+INCIDENCIAS	     TS_ACCESO_DATOS
+INSCRIPCIONES	     TS_ACCESO_DATOS
+PARAMETROS	     TS_ACCESO_DATOS
+PASES		     TS_ACCESO_DATOS
+PERMISOS_ZONA	     TS_ACCESO_DATOS
+PERSONAS	     TS_ACCESO_DATOS
+PUNTOS_CONTROL	     TS_ACCESO_DATOS
+RESTRICCIONES	     TS_ACCESO_DATOS
+SECCIONES	     TS_ACCESO_DATOS
+SESIONES	     TS_ACCESO_DATOS
+ZONAS		     TS_ACCESO_DATOS
+
+18 rows selected.
+
+
+TOTAL_TABLAS
+------------
+	  18
+
+
+=== Indices secundarios ===
+
+INDEX_NAME		       TABLE_NAME	    TABLESPACE_NAME
+------------------------------ -------------------- ------------------
+IX_ACCESOS_PERSONA_FECHA       ACCESOS		    TS_ACCESO_IDX
+IX_ACCESOS_PUNTO_FECHA	       ACCESOS		    TS_ACCESO_IDX
+IX_ACCESOS_RESULTADO_FECHA     ACCESOS		    TS_ACCESO_IDX
+IX_ASISTENCIAS_ESTUDIANTE      ASISTENCIAS	    TS_ACCESO_IDX
+IX_INCIDENCIAS_ZONA_FECHA      INCIDENCIAS	    TS_ACCESO_IDX
+IX_PASES_VISITANTE_ESTADO      PASES		    TS_ACCESO_IDX
+IX_RESTRIC_PERSONA_ESTADO      RESTRICCIONES	    TS_ACCESO_IDX
+IX_SESIONES_SECCION_INICIO     SESIONES 	    TS_ACCESO_IDX
+
+8 rows selected.
+
+
+Commit complete.
+

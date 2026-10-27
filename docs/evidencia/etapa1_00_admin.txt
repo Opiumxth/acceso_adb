@@ -1,0 +1,79 @@
+Directorio de datafiles: /opt/oracle/oradata/XE/XEPDB1/
+Tablespace creado : ts_acceso_datos
+Tablespace creado : ts_acceso_log
+Tablespace creado : ts_acceso_idx
+
+PL/SQL procedure successfully completed.
+
+Usuario creado	  : acceso_owner
+Rol creado    : rol_admin
+Rol creado    : rol_docente
+Rol creado    : rol_vigilante
+Rol creado    : rol_punto_control
+Usuario creado	  : u_admin
+Usuario creado	  : u_docente
+Usuario creado	  : u_vigilante
+Usuario creado	  : u_punto
+
+PL/SQL procedure successfully completed.
+
+
+Grant succeeded.
+
+
+Grant succeeded.
+
+
+Grant succeeded.
+
+
+Grant succeeded.
+
+
+Grant succeeded.
+
+
+Grant succeeded.
+
+
+Grant succeeded.
+
+
+Grant succeeded.
+
+
+Grant succeeded.
+
+
+=== Tablespaces del proyecto ===
+
+TABLESPACE_NAME      FILE_NAME								MB AUTOE
+-------------------- ------------------------------------------------------------ -------- -----
+TS_ACCESO_DATOS      /opt/oracle/oradata/XE/XEPDB1/ts_acceso_datos01.dbf		50 YES
+TS_ACCESO_IDX	     /opt/oracle/oradata/XE/XEPDB1/ts_acceso_idx01.dbf			30 YES
+TS_ACCESO_LOG	     /opt/oracle/oradata/XE/XEPDB1/ts_acceso_log01.dbf			50 YES
+
+
+=== Usuarios del proyecto ===
+
+USERNAME	DEFAULT_TABLESPACE ACCOUNT_STATUS
+--------------- ------------------ --------------------------------
+ACCESO_OWNER	TS_ACCESO_DATOS    OPEN
+U_ADMIN 	USERS		   OPEN
+U_DOCENTE	USERS		   OPEN
+U_PUNTO 	USERS		   OPEN
+U_VIGILANTE	USERS		   OPEN
+
+
+=== Roles asignados ===
+
+GRANTEE 	GRANTED_ROLE
+--------------- --------------------
+U_ADMIN 	ROL_ADMIN
+U_DOCENTE	ROL_DOCENTE
+U_PUNTO 	ROL_PUNTO_CONTROL
+U_VIGILANTE	ROL_VIGILANTE
+
+
+Commit complete.
+

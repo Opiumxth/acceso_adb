@@ -1,0 +1,69 @@
+
+=== Filas por tabla ===
+
+TABLA		    FILAS
+-------------- ----------
+escuelas		3
+personas	       17
+estudiantes	       10
+docentes		3
+zonas			6
+puntos_control		7
+accesos 	      494
+cursos			4
+secciones		4
+inscripciones	       19
+sesiones	       25
+asistencias	      114
+permisos_zona	       19
+restricciones		1
+pases			2
+incidencias		5
+parametros		7
+auditoria		0
+
+18 rows selected.
+
+
+=== Personas por tipo ===
+
+TIPO		     TOTAL
+--------------- ----------
+administrativo		 1
+docente 		 3
+estudiante		10
+vigilante		 1
+visitante		 2
+
+5 rows selected.
+
+
+=== Inscripciones: faltas y estado tras la simulacion ===
+
+ID_SECCION CODIGO   ESTUDIANTE			 FALTAS ESTADO
+---------- -------- ------------------------ ---------- ------------
+	 1 25200001 Ana Torres Quispe		      0 activa
+	 1 25200002 Luis Ramirez Huaman 	      0 activa
+	 1 25200003 Maria Gomez Flores		      0 activa
+	 1 25200004 Diego Castillo Rojas	      3 inhabilitado
+	 1 25200005 Sofia Herrera Diaz		      1 activa
+	 1 25200006 Pedro Vargas Leon		      0 activa
+	 2 25200001 Ana Torres Quispe		      0 activa
+	 2 25200002 Luis Ramirez Huaman 	      0 activa
+	 2 25200007 Valeria Ortiz Mejia 	      1 activa
+	 2 25200008 Andres Silva Cruz		      0 activa
+	 3 25200003 Maria Gomez Flores		      0 activa
+	 3 25200004 Diego Castillo Rojas	      0 activa
+	 3 25200005 Sofia Herrera Diaz		      1 activa
+	 3 25200009 Camila Rojas Prado		      0 activa
+	 3 25200010 Miguel Navarro Pinto	      1 activa
+	 4 25200006 Pedro Vargas Leon		      0 activa
+	 4 25200007 Valeria Ortiz Mejia 	      0 activa
+	 4 25200008 Andres Silva Cruz		      0 activa
+	 4 25200010 Miguel Navarro Pinto	      1 activa
+
+19 rows selected.
+
+
+Commit complete.
+

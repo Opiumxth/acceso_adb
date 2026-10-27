@@ -1,0 +1,63 @@
+
+TOTAL_TABLAS
+------------
+	  18
+
+
+TOTAL_PERSONAS
+--------------
+	    17
+
+
+ESTADO		TOTAL
+---------- ----------
+falta		    8
+presente	   86
+tardanza	   20
+
+
+ ID_SESION ID_SECCION INICIO	       ESTADO
+---------- ---------- ---------------- ----------
+	 1	    1 2026-09-15 08:00 cerrada
+	24	    4 2026-10-20 16:00 cerrada
+       900	    1 2026-10-27 19:05 en_curso
+
+
+RESULTAD MOTIVO 				       TOTAL
+-------- ---------------------------------------- ----------
+denegado codigo_inexistente				   3
+denegado fuera_de_horario				   1
+denegado persona_inactiva				   1
+denegado persona_restringida				   1
+denegado rostro_no_coincide				   1
+denegado sin_pase_vigente				   1
+
+6 rows selected.
+
+
+TIPO					 GRAVED ESTADO	     ORIGEN
+---------------------------------------- ------ ------------ ----------
+intentos_reiterados			 media	resuelta     sistema
+persona_restringida			 alta	abierta      sistema
+equipo_danado				 baja	en_revision  vigilante
+ingreso_fuera_de_horario		 baja	resuelta     vigilante
+visitante_sin_pase_vigente		 media	abierta      vigilante
+
+
+   ID_PASE ID_VISITANTE ID_ZONA_DESTINO DESDE	   HASTA      ESTADO
+---------- ------------ --------------- ---------- ---------- ----------
+      1000	     30 	      2 2026-10-26 2026-11-26 activo
+      1001	     31 	      1 2026-10-17 2026-10-24 activo
+
+
+TABLE_NAME															 TABLESPACE_NAME
+-------------------------------------------------------------------------------------------------------------------------------- ------------------------------
+ACCESOS 															 TS_ACCESO_LOG
+ASISTENCIAS															 TS_ACCESO_LOG
+AUDITORIA															 TS_ACCESO_LOG
+
+
+HORA_SERVIDOR	    HORA_LIMA
+------------------- -------------------
+2026-10-27 19:11:01 2026-10-27 14:11:01
+

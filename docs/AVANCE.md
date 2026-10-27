@@ -23,7 +23,7 @@ docker exec -i oracle-xe sqlplus -s 'acceso_owner/"Owner#2026"@XEPDB1' @/tmp/01_
 |---|---|---|
 | `sql/00_admin.sql` | SYSTEM | 3 tablespaces con autoextend (datafiles en el mismo directorio que los de XEPDB1, leído de `v$datafile`), usuario dueño `acceso_owner`, 4 roles y 4 usuarios de aplicación. Se puede repetir sin error. |
 | `sql/01_esquema.sql` | acceso_owner | 18 tablas con constraints con nombre (`pk_`, `fk_`, `uq_`, `ck_`) y 8 índices secundarios en `ts_acceso_idx`. `accesos`, `asistencias` y `auditoria` van en `ts_acceso_log`. |
-| `sql/02_datos.sql` | acceso_owner | Datos ficticios con fechas relativas a `sysdate`: 17 personas, 6 zonas, 7 puntos, 19 permisos, 4 secciones, 19 inscripciones, 24 sesiones cerradas + la sesión 900 en curso, 114 asistencias simuladas, 494 accesos, 8 denegados, 2 pases, 1 restricción y 5 incidencias. |
+| `sql/02_datos.sql` | acceso_owner | Datos ficticios con fechas relativas a `sysdate`: 17 personas, 6 zonas, 7 puntos, 19 permisos, 4 secciones, 19 inscripciones, 24 sesiones cerradas + la sesión 900 en curso, 114 asistencias simuladas, 505 accesos (11 de ellos de hoy), 8 denegados, 2 pases, 1 restricción y 5 incidencias. |
 | `sql/99_reset.sql` | acceso_owner | Borra todas las tablas del esquema (bloque PL/SQL). |
 
 ### Resultado de la verificación
@@ -31,13 +31,14 @@ docker exec -i oracle-xe sqlplus -s 'acceso_owner/"Owner#2026"@XEPDB1' @/tmp/01_
 - 18 tablas (`user_tables`).
 - 17 personas: 3 docentes, 1 vigilante, 1 administrativo, 10 estudiantes, 2 visitantes.
 - Asistencias simuladas: 86 presente, 20 tardanza, 8 falta.
+- Accesos: 505 (494 de los 14 días anteriores y de las sesiones, más 11 de hoy sembrados para que el dashboard del panel no salga vacío).
 - Inscripciones: el estudiante 25200004 queda `inhabilitado` (3 faltas de 6) y 25200005 queda en riesgo en la sección 1 (1 falta).
 - Los 8 denegados de ejemplo cubren los 6 motivos pedidos (3 son `codigo_inexistente`).
 
 ### Decisiones y diferencias respecto a la especificación
 
 1. **`maxsize` del autoextend**: 500m para datos y log, 200m para índices, para que un descuido no llene el disco del contenedor.
-2. **Parámetro extra `ZONA_HORARIA = America/Lima`** en `parametros`. El contenedor Oracle corre en UTC (5 horas por delante de Lima), así que las ventanas `HH24:MI` de `permisos_zona` se evaluarán en esa zona. El resto de las marcas de tiempo se guardan en hora del servidor, como indica la especificación (`sysdate`, `systimestamp`).
+2. **Parámetro extra `ZONA_HORARIA = America/Lima`** en `parametros`. El contenedor Oracle corre en UTC (5 horas por delante de Lima), así que las ventanas `HH24:MI` de `permisos_zona` se evaluarán en esa zona. El resto de las marcas de tiempo se guardan en hora del servidor, como indica la especificación (`sysdate`, `systimestamp`). Desde la Etapa 7 los reportes y el panel además interpretan las fechas como días de la hora local y muestran las horas en esa zona (funciones `f_desfase` y `f_hoy_local`, definidas al final de `01_esquema.sql`), y `02_datos.sql` genera las horas de clase e ingresos en hora local.
 3. **Constraints adicionales** (más estrictos, sin cambiar los datos pedidos): `not null` en columnas de estado con default; formato `HH24:MI` y `hora_desde <= hora_hasta` en `permisos_zona`; `fecha_fin >= fecha_inicio` en `restricciones`.
 4. **Simulación de asistencias**: reparto aleatorio con semilla fija (78 % / 12 % / 10 % esperado) más ajustes dirigidos para que las pruebas y los reportes no dependan del azar: los estudiantes 10 y 11 (usados en `test_03`) no tienen faltas, el 13 queda inhabilitado y el 14 en riesgo. Por eso el reparto final es 75 % / 17 % / 7 %.
 5. Cada asistencia simulada presente o tardanza tiene su acceso al aula (`id_acceso`), y cada sesión tiene el ingreso del docente.
@@ -54,7 +55,7 @@ docker exec -i oracle-xe sqlplus -s 'acceso_owner/"Owner#2026"@XEPDB1' @/tmp/01_
 - `docs/evidencia/etapa1_02_datos.txt`
 - `docs/evidencia/etapa1_verificacion.txt`
 
-Las cuatro salidas corresponden a una corrida desde cero (se eliminaron antes los usuarios, roles y tablespaces del proyecto).
+Las cuatro salidas corresponden a una corrida desde cero (se eliminaron antes los usuarios, roles y tablespaces del proyecto) y se regeneraron en la reconstrucción final de la Etapa 7. En `etapa1_verificacion.txt` las horas de las sesiones aparecen tal como se guardan, en hora del servidor (13:00 equivale a 08:00 hora local).
 
 ---
 
@@ -62,7 +63,7 @@ Las cuatro salidas corresponden a una corrida desde cero (se eliminaron antes lo
 
 ### Qué se hizo
 
-`sql/03_procedimientos.sql` (propietario `acceso_owner`) crea 17 objetos, todos `VALID` y sin errores de compilación:
+`sql/03_procedimientos.sql` (propietario `acceso_owner`) creó 17 objetos, todos `VALID` y sin errores de compilación (en la Etapa 7 se agregaron `p_obtener_desfase`, `p_crear_sesion` y `p_cancelar_sesion`: ahora son 20):
 
 | Grupo | Objetos |
 |---|---|
@@ -119,7 +120,7 @@ Códigos de error (`raise_application_error`): `-20001` entrada inválida, `-200
 | `12345678` tres veces seguidas | la tercera crea `intentos_reiterados` (media); la cuarta no la duplica |
 | `p_cerrar_sesion(900)` | 3 faltas, 0 inhabilitados |
 | `p_cerrar_sesion(901)` (sesión extra) | 5 faltas, 1 inhabilitado (25200005, 3 de 8 = 37.5 %) |
-| punto inexistente, `rostro_ok` inválido, código en blanco, método inválido, restricción inexistente | `ORA-20002`, `ORA-20001`, `ORA-20001`, `ORA-20001`, `ORA-20002`; el conteo de `accesos` no cambia (519 antes y después) |
+| punto inexistente, `rostro_ok` inválido, código en blanco, método inválido, restricción inexistente | `ORA-20002`, `ORA-20001`, `ORA-20001`, `ORA-20001`, `ORA-20002`; el conteo de `accesos` no cambia (530 antes y después) |
 
 También se probaron el CRUD de personas (alta con subtipo, duplicado `ORA-20005`, modificación, búsqueda, listado de 18 filas, baja lógica y eliminación física), restricciones (registrar, denegar con incidencia alta, levantar y volver a permitir), pases (emitir, entrar, revocar y volver a denegar) e incidencias del vigilante (registrar, `en_revision`, `resuelta`).
 
@@ -135,7 +136,7 @@ También se probaron el CRUD de personas (alta con subtipo, duplicado `ORA-20005
 
 ### Qué se hizo
 
-`sql/04_reportes.sql` crea 9 procedimientos `r_*` (todos `VALID`, sin errores de compilación). Cada uno devuelve un `SYS_REFCURSOR` en el último parámetro (`o_cursor`); el cliente lo abre, recorre y cierra.
+`sql/04_reportes.sql` creó 9 procedimientos `r_*` (todos `VALID`, sin errores de compilación); en las Etapas 6 y 7 se agregaron 7 más (`r_escuelas`, `r_zonas`, `r_secciones`, `r_sesiones`, `r_restricciones`, `r_resumen_hoy` y `r_accesos_bitacora`) y ahora son 16. Cada uno devuelve un `SYS_REFCURSOR` en el último parámetro (`o_cursor`); el cliente lo abre, recorre y cierra.
 
 | Procedimiento | Parámetros | Contenido |
 |---|---|---|
@@ -156,7 +157,7 @@ Reglas comunes: las fechas desde/hasta son inclusivas y un valor nulo significa 
 1. Los reportes de asistencia cuentan solo sesiones **cerradas**, así el porcentaje no se distorsiona con una sesión en curso.
 2. "En riesgo" se definió como "una falta más lo inhabilita". Con pocas sesiones cerradas una sola falta basta para entrar en ese nivel: con 1 falta en 6 sesiones, `(1 + 1) * 100 / 6 = 33.3 %` supera el 30 %, por eso aparecen varios estudiantes. El cálculo usa el total actual de sesiones cerradas (criterio conservador).
 3. `r_asistencia_sesion` se agregó aunque no estaba en la lista, porque la pantalla de asistencia por sesión de la Etapa 7 la necesita.
-4. Las horas de `r_flujo_por_hora` están en hora del servidor (UTC en este contenedor), igual que las marcas guardadas en `accesos`.
+4. Desde la Etapa 7 los reportes interpretan las fechas que reciben como días de la hora local (`ZONA_HORARIA`) y muestran las horas en esa zona; las marcas siguen guardadas en hora del servidor. Los datos de prueba se generan en hora local, por eso el flujo de ayer sigue mostrando entradas de 07:00 a 09:00.
 
 ### Resultado de `sql/test_04.sql`
 
@@ -171,7 +172,8 @@ Se ejecutó sobre el estado que dejó `test_03` (sesiones 900 y 901 cerradas, ac
 - `r_pases_vigentes`: solo el pase del visitante 99000001 (el 1002 fue revocado y el de 99000002 está vencido).
 - `r_uso_aulas_vs_sesiones`: hoy, A-101 con 2 sesiones, 7 accesos y 2 asistentes; hace 7 días, 3 aulas con actividad `normal`.
 - `r_flujo_por_hora`: 24 filas por consulta (ayer en la puerta: entradas de 07:00 a 09:00 y salidas de 12:00 a 19:00).
-- Errores esperados: sección inexistente, estado no válido, rango de fechas al revés y zona inexistente (`ORA-20002`, `ORA-20001`, `ORA-20001`, `ORA-20002`).
+- Procedimientos de consulta del panel (sección 10 de `test_04.sql`): `r_resumen_hoy` (36 accesos hoy, 5 incidencias abiertas), `r_accesos_bitacora` con filtros (últimos 5 de hoy, denegados de la puerta, búsqueda por texto), `r_zonas`, `r_escuelas`, `r_secciones`, `r_sesiones(1)`, `r_restricciones` y `p_obtener_desfase` (300 minutos).
+- Errores esperados (sección 11): sección inexistente, estado no válido, rango de fechas al revés, zona inexistente, sección inexistente en `r_sesiones` y resultado no válido en la bitácora (`ORA-20002`, `ORA-20001`, `ORA-20001`, `ORA-20002`, `ORA-20002`, `ORA-20001`).
 
 ### Evidencia
 
@@ -199,8 +201,12 @@ Se ejecutó sobre el estado que dejó `test_03` (sesiones 900 y 901 cerradas, ac
 | `p_registrar_restriccion`, `p_levantar_restriccion` | | X | | X |
 | `p_registrar_incidencia`, `p_resolver_incidencia` | | X | | X |
 | `r_accesos_denegados`, `r_incidencias`, `r_pases_vigentes`, `r_flujo_por_hora` | | X | | X |
+| `p_obtener_desfase`, `r_resumen_hoy`, `r_accesos_bitacora`, `r_zonas`, `r_restricciones` (consultas del panel) | | X | | X |
 | `r_asistencia_seccion`, `r_asistencia_sesion`, `r_alumnos_en_riesgo`, `r_ranking_tardanzas` | | | X | X |
-| `p_registrar_persona`, `p_modificar_persona`, `p_eliminar_persona`, `p_listar_personas`, `p_cerrar_sesion`, `r_uso_aulas_vs_sesiones`, `f_parametro`, `f_parametro_num` | | | | X |
+| `r_secciones`, `r_sesiones` (elegir sección y sesión) | | | X | X |
+| `p_registrar_persona`, `p_modificar_persona`, `p_eliminar_persona`, `p_listar_personas`, `p_cerrar_sesion`, `p_crear_sesion`, `p_cancelar_sesion`, `r_uso_aulas_vs_sesiones`, `r_escuelas`, `f_parametro`, `f_parametro_num`, `f_desfase`, `f_hoy_local` | | | | X |
+
+Total de `EXECUTE` por rol: punto de control 3, docente 6, vigilante 19 y administrador 38 (todo lo que existe: 18 procedimientos `p_*`, 16 `r_*` y 4 funciones). Privilegios sobre tablas: 0.
 
 ### Decisiones tomadas
 
@@ -209,7 +215,7 @@ Se ejecutó sobre el estado que dejó `test_03` (sesiones 900 y 901 cerradas, ac
 3. **Cerrar sesiones queda solo para el administrador.** La especificación da al docente únicamente reportes. Para que el docente cierre sus sesiones habría que validar que la sesión sea de una sección suya dentro del procedimiento (queda como pendiente).
 4. El trigger registra `SESSION_USER`, es decir, la persona que inició sesión (`U_ADMIN`, `U_VIGILANTE`...) aunque el cambio lo haga un procedimiento del esquema dueño. La fila de auditoría va en la misma transacción que el cambio: si el procedimiento hace `rollback`, la auditoría también se deshace.
 5. Los triggers se eliminan junto con sus tablas, así que después de `99_reset.sql` + `01` + `02` hay que volver a ejecutar `05_triggers.sql`. Orden completo de carga: `00, 01, 02, 03, 04, 05, 06`.
-6. `test_03` y `test_04` se ejecutaron antes de crear los triggers, por eso la bitácora solo contiene lo que hizo `test_05_06`.
+6. En la reconstrucción final los triggers (`05`) existen antes de las pruebas, así que la bitácora también registra lo que hizo `test_03` como `ACCESO_OWNER` (16 filas en total).
 
 ### Resultado de `sql/test_05_06.sql`
 
@@ -218,14 +224,14 @@ Se ejecutó sobre el estado que dejó `test_03` (sesiones 900 y 901 cerradas, ac
 | `u_punto` | `select` e `insert` directos sobre `accesos`; `select` sobre `personas` y `parametros` | `ORA-00942` (4 casos) |
 | `u_punto` | `p_verificar_persona('90000001')`, `p_registrar_acceso`, `p_obtener_parametro('UMBRAL_LBPH')` | funcionan: Ricardo Salas Medina existe, acceso `permitido`, umbral `40` |
 | `u_punto` | `p_cerrar_sesion`, `p_registrar_persona`, `r_incidencias` | `PLS-00201` (no tiene permiso) |
-| `u_docente` | `r_asistencia_seccion(1)`, `r_alumnos_en_riesgo(2)` | funcionan |
-| `u_docente` | `p_registrar_acceso`, `r_accesos_denegados`; `select` sobre `inscripciones` | `PLS-00201`, `PLS-00201`, `ORA-00942` |
-| `u_vigilante` | `p_registrar_acceso`, emitir y revocar un pase, registrar y resolver una incidencia, registrar y levantar una restricción, `r_accesos_denegados` | funcionan |
-| `u_vigilante` | `p_registrar_persona`, `r_asistencia_seccion`; `select` sobre `pases` | `PLS-00201`, `PLS-00201`, `ORA-00942` |
-| `u_admin` | alta, modificación, restricción y baja lógica de la persona 88000001; alta y eliminación física de la 88000002; `p_buscar_personas`, `r_pases_vigentes` | funcionan (`baja_logica` y `eliminada`) |
+| `u_docente` | `r_secciones`, `r_asistencia_seccion(1)`, `r_alumnos_en_riesgo(2)` | funcionan |
+| `u_docente` | `p_registrar_acceso`, `r_accesos_denegados`, `r_resumen_hoy`; `select` sobre `inscripciones` | `PLS-00201` (3 casos) y `ORA-00942` |
+| `u_vigilante` | `p_registrar_acceso`, emitir y revocar un pase, registrar y resolver una incidencia, registrar y levantar una restricción, `r_accesos_denegados`, `r_resumen_hoy`, `r_accesos_bitacora`, `r_restricciones` | funcionan |
+| `u_vigilante` | `p_registrar_persona`, `r_asistencia_seccion`, `r_secciones`; `select` sobre `pases` | `PLS-00201` (3 casos) y `ORA-00942` |
+| `u_admin` | alta, modificación, restricción y baja lógica de la persona 88000001; alta y eliminación física de la 88000002; `p_buscar_personas`, `r_pases_vigentes`, programar y cancelar una sesión (`p_crear_sesion`, `p_cancelar_sesion`) | funcionan (`baja_logica` y `eliminada`) |
 | `u_admin` | `select` directo sobre `auditoria` | `ORA-00942`: ni el administrador toca las tablas |
 
-Bitácora generada por los triggers (9 filas): `U_ADMIN` hizo 2 `INSERT`, 2 `UPDATE` y 1 `DELETE` sobre `PERSONAS` y 1 `INSERT` y 1 `UPDATE` sobre `RESTRICCIONES`; `U_VIGILANTE` hizo 1 `INSERT` y 1 `UPDATE` sobre `RESTRICCIONES`. En total aparecen 7 errores `ORA-00942` y 7 `PLS-00201`, todos esperados.
+Bitácora generada por los triggers (16 filas): `ACCESO_OWNER` (las pruebas de `test_03`) hizo 2 `INSERT`, 2 `UPDATE` y 1 `DELETE` sobre `PERSONAS` y 1 `INSERT` y 1 `UPDATE` sobre `RESTRICCIONES`; `U_ADMIN` hizo lo mismo; `U_VIGILANTE` hizo 1 `INSERT` y 1 `UPDATE` sobre `RESTRICCIONES`. En total aparecen 7 errores `ORA-00942` y 9 `PLS-00201`, todos esperados.
 
 ### Evidencia
 
@@ -243,11 +249,11 @@ Bitácora generada por los triggers (9 filas): `U_ADMIN` hizo 2 `INSERT`, 2 `UPD
 
 - El diagrama `erDiagram` incluye las 18 tablas y 24 relaciones. Las relaciones se sacaron de las claves foráneas reales de la base (`user_constraints`), no de memoria: 24 claves foráneas, 18 primarias, 7 únicas, 29 checks con nombre y 8 índices secundarios.
 - La sintaxis mermaid se validó con el parser oficial (`mermaid` 11.4.1 con `jsdom`, instalado en un directorio temporal fuera del repositorio): el bloque se reconoce como diagrama `er`. Un control negativo con un diagrama roto a propósito sí falla, así que la validación no es vacía.
-- Las cifras de tablespaces (50/500, 50/500 y 30/200 MB) y de objetos (15 procedimientos `p_*`, 9 reportes `r_*`, 2 funciones, 2 triggers) salen de consultas al diccionario de datos.
+- Las cifras de tablespaces (50/500, 50/500 y 30/200 MB) y de objetos (en la Etapa 5: 15 procedimientos `p_*`, 9 reportes `r_*`, 2 funciones y 2 triggers; al terminar la Etapa 7: 18, 16, 4 y 2) salen de consultas al diccionario de datos.
 
 ### Estado
 
-El resumen describe lo hecho hasta la Etapa 4 y lista los límites conocidos. Se actualizará al terminar las Etapas 6 y 7 (Python y panel web).
+El resumen se escribió con lo hecho hasta la Etapa 4 y se actualizó al terminar la Etapa 7 (procedimientos y reportes nuevos, hora local, Python, panel web y evidencia).
 
 ---
 
@@ -310,7 +316,7 @@ cp .env.example .env        # completar las claves (están en sql/00_admin.sql)
 - QR: lectura de un código generado, vencimiento del tiempo y cámara sin imagen.
 - Alta de personas: ciclo completo con subtipo, duplicado (`ORA-20005`), compensación cuando falla la biometría o la captura lanza una excepción, y borrado de archivos acotado a la carpeta de datos.
 
-Además se ejecutaron el modo `--simular` (8 casos), el menú de consola (panel de administración con la clave de `.env`, búsqueda, y clave incorrecta tres veces) y el error de cámara con un índice inexistente (código de salida 3, el menú sigue funcionando). Cada ejecución de las pruebas agrega filas de prueba a `accesos` con método `simulado`.
+Además se ejecutaron el modo `--simular` (8 casos), el menú de consola (panel de administración con la clave de `.env`, búsqueda, y clave incorrecta tres veces) y el error de cámara con un índice inexistente (código de salida 3, el menú sigue funcionando). Cada ejecución de las pruebas agrega filas de prueba a `accesos` con método `simulado`; las incidencias que esas lecturas disparan se cierran al terminar cada clase de pruebas (`tests/utiles.py`).
 
 ### Lo que NO se probó
 
@@ -322,7 +328,7 @@ La **cámara real**. No encendí la webcam porque capturaría tu imagen; la lect
 
 ---
 
-## Etapa 7 - Panel web Flask (implementada y probada; documentación final pendiente)
+## Etapa 7 - Panel web Flask (completada, falta probarlo en tu navegador y con la webcam real)
 
 ### Qué se hizo
 
@@ -338,8 +344,36 @@ La **cámara real**. No encendí la webcam porque capturaría tu imagen; la lect
 - Reconstrucción desde cero de `00` a `06`: 0 errores `ORA-` y 0 errores de compilación. Evidencia regenerada.
 - Evidencia: `docs/evidencia/etapa7_panel.txt` y capturas en `docs/evidencia/panel/`.
 
-### Pendiente (no se alcanzó a hacer)
+### Cómo ejecutarlo
 
-1. **Actualizar cifras de las etapas 1 a 4 en este archivo y en `RESUMEN.md`**: tras agregar los accesos de hoy, la carga trae 505 accesos (no 494); `test_05_06` ahora da 7 `ORA-00942` y 9 `PLS-00201`; `reportes.txt` incluye los reportes nuevos y las horas en hora local. Las evidencias (`docs/evidencia/*.txt`) ya están regeneradas y son las que valen.
-2. **Actualizar `RESUMEN.md`** (reportes y catálogos nuevos, panel web, hora local) y escribir un `README.md` de arranque rápido.
-3. Probar el panel en tu navegador y la webcam real (solo se probó con Firefox headless y cámara simulada).
+```
+# base de datos (una vez): ver "Cómo reproducir" en docs/RESUMEN.md
+./venv/bin/python src/app.py          # http://127.0.0.1:5000
+```
+
+Entrar con el rol y la clave `PANEL_PASSWORD_<ROL>` de `.env` (`.env.example` explica cada variable). Cada rol ve solo sus pantallas y usa su usuario de Oracle:
+
+| Rol | Pantallas |
+|---|---|
+| Administrador | todas: personas (alta, edición y baja), asistencia con programar, cancelar y cerrar sesiones, bitácora, incidencias, pases, restricciones y los 9 reportes |
+| Vigilante | dashboard, bitácora de accesos, incidencias, pases, restricciones, búsqueda de personas y reportes de seguridad |
+| Docente | dashboard con sus secciones, asistencia (solo lectura) y reportes de asistencia |
+
+### Decisiones tomadas
+
+1. **Claves del panel separadas de las de Oracle**: el login valida `PANEL_PASSWORD_<ROL>` y recién después se abre la conexión Oracle del rol. Un rol sin clave configurada no puede ingresar.
+2. **El rostro no se registra desde la web**: requiere la cámara del punto de acceso; el alta web crea la persona y recuerda usar la opción 2.3 del menú de consola.
+3. **Se agregó `p_cancelar_sesion`** (elimina una sesión programada sin asistencias) para poder corregir una sesión programada por error; también permite que las pruebas no dejen sesiones huérfanas.
+4. **Gráfico de flujo por hora sin librerías**: barras apiladas con HTML y CSS, para que el panel no dependa de nada externo.
+5. **Un docente puede ver todas las secciones**: Oracle no distingue entre docentes porque todos comparten el usuario `u_docente`. Validar que cada docente vea solo las suyas requeriría un usuario por docente (queda como mejora).
+
+### Problemas encontrados y corregidos
+
+- Los macros de Jinja importados no ven el contexto: `csrf_token()` no existía dentro de `boton_post`. Se registró como función global.
+- `str.format` sobre mensajes con texto del usuario permitía inyección de formato: `intentar()` ahora recibe texto fijo o una función.
+- Programar una sesión en una sección inexistente redirigía a un 404 dejando un aviso colgado: ahora se verifica la sección antes.
+- Las pruebas de lectura en el punto de control dejaban incidencias abiertas en el dashboard: se cierran al terminar cada clase de pruebas.
+
+### Lo que NO se probó
+
+- El panel en tu navegador (solo se probó con el cliente de pruebas de Flask y capturas de Firefox sin interfaz) y la cámara real. Para la cámara: `./venv/bin/python src/main.py`, opción 2.3 para registrar tu rostro con un código existente y opción 1 para probar el acceso con el QR guardado en `datos/qrcodes/`.

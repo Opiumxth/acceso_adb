@@ -2,6 +2,7 @@
 
 Curso: Administración de Base de Datos, Ingeniería de Sistemas, UNMSM. Estudiante: Mathias.
 Base de datos: Oracle XE 21c (Docker, servicio `XEPDB1`), esquema `acceso_owner`.
+Aplicación: punto de acceso en Python (QR + reconocimiento facial) y panel web en Flask; ambos solo llaman a procedimientos de Oracle.
 
 ## 1. El sistema en una frase
 
@@ -177,6 +178,8 @@ Todos son procedimientos sueltos del esquema dueño. Un acceso denegado **no es 
 | `p_registrar_persona`, `p_modificar_persona`, `p_eliminar_persona` | CRUD de personas (alta con subtipo en una transacción, baja lógica si hay historial) |
 | `p_listar_personas`, `p_buscar_personas` | Consultas con `SYS_REFCURSOR` |
 | `p_obtener_parametro` | Lee un parámetro (el punto de acceso lee `UMBRAL_LBPH`) |
+| `p_crear_sesion`, `p_cancelar_sesion` | Programa una sesión de clase y cancela una programada que aún no tiene asistencias |
+| `p_obtener_desfase` | Minutos entre la hora del servidor y la hora local, para convertir las fechas que envían los clientes |
 
 **Reglas de `p_registrar_acceso`, en este orden:**
 
@@ -190,7 +193,11 @@ Todos son procedimientos sueltos del esquema dueño. Un acceso denegado **no es 
 
 Los umbrales se leen de la tabla `parametros`; no están escritos en el código.
 
-**Reportes (`SYS_REFCURSOR`):** `r_asistencia_seccion`, `r_asistencia_sesion`, `r_alumnos_en_riesgo`, `r_ranking_tardanzas`, `r_accesos_denegados` (con `ROLLUP`), `r_incidencias`, `r_pases_vigentes`, `r_uso_aulas_vs_sesiones` y `r_flujo_por_hora`.
+**Reportes (`SYS_REFCURSOR`):** `r_asistencia_seccion`, `r_asistencia_sesion`, `r_alumnos_en_riesgo`, `r_ranking_tardanzas`, `r_accesos_denegados` (con `ROLLUP`), `r_incidencias`, `r_pases_vigentes`, `r_uso_aulas_vs_sesiones` y `r_flujo_por_hora`. Para el panel hay además `r_resumen_hoy`, `r_accesos_bitacora` (con filtros), `r_zonas`, `r_escuelas`, `r_secciones`, `r_sesiones` y `r_restricciones`.
+
+**Hora local:** las marcas de tiempo se guardan en hora del servidor (UTC en el contenedor). Los reportes interpretan las fechas como días de la hora local y muestran las horas en `America/Lima` (parámetro `ZONA_HORARIA`, funciones `f_desfase` y `f_hoy_local`).
+
+Total en la base: 18 procedimientos `p_*`, 16 `r_*`, 4 funciones y 2 triggers, todos válidos.
 
 ## 4. Roles, permisos y tablespaces
 
@@ -199,9 +206,11 @@ Los roles **solo tienen `EXECUTE` sobre procedimientos; ninguno tiene privilegio
 | Usuario | Rol | Puede ejecutar |
 |---|---|---|
 | `u_punto` | `rol_punto_control` | `p_verificar_persona`, `p_registrar_acceso`, `p_obtener_parametro` |
-| `u_vigilante` | `rol_vigilante` | Lo anterior, pases, restricciones, incidencias, `p_buscar_personas` y reportes de seguridad |
-| `u_docente` | `rol_docente` | Reportes de asistencia |
+| `u_vigilante` | `rol_vigilante` | Lo anterior, pases, restricciones, incidencias, `p_buscar_personas`, reportes de seguridad y consultas del panel (resumen del día, bitácora, zonas, restricciones vigentes) |
+| `u_docente` | `rol_docente` | Reportes de asistencia y la lista de secciones y sesiones |
 | `u_admin` | `rol_admin` | Todos los procedimientos y funciones |
+
+Total de `EXECUTE`: punto de control 3, docente 6, vigilante 19 y administrador 38. El punto de acceso y el panel web se conectan con estos mismos usuarios.
 
 | Tablespace | Tamaño inicial / máximo | Contenido |
 |---|---|---|
@@ -217,25 +226,44 @@ Salida real de cada ejecución en `docs/evidencia/` (detalle por etapa en `docs/
 
 | Archivo | Qué demuestra |
 |---|---|
-| `etapa1_*.txt` | Carga desde cero: 18 tablas, 17 personas, índices y tablespaces |
+| `etapa1_*.txt` | Carga desde cero: 18 tablas, 17 personas, 505 accesos, índices y tablespaces |
 | `test_03.txt` | Todos los motivos de denegación, visitantes y pases, asistencia `presente` y `tardanza` sin duplicar, `intentos_reiterados`, `p_cerrar_sesion` con inhabilitación, CRUD y errores controlados |
-| `reportes.txt` | Los 9 reportes impresos con `VARIABLE` y `PRINT`, y sus errores controlados |
-| `permisos.txt` | `u_punto` no puede hacer `SELECT` sobre `accesos` (`ORA-00942`) pero sí ejecutar `p_registrar_acceso`; matriz por rol; bitácora de auditoría |
+| `reportes.txt` | Los 9 reportes y las consultas del panel impresos con `VARIABLE` y `PRINT`, en hora local, y sus errores controlados |
+| `permisos.txt` | `u_punto` no puede hacer `SELECT` sobre `accesos` (`ORA-00942`) pero sí ejecutar `p_registrar_acceso`; matriz por rol; bitácora de auditoría (16 filas) |
+| `etapa6_python.txt` | 49 pruebas de Python (QR y rostro con cámara simulada, flujo del punto de acceso, alta de personas), el modo `--simular`, el menú de consola y el error de cámara |
+| `etapa7_panel.txt` | 64 pruebas del panel (login, CSRF, permisos por rol y flujos completos), suite completa de 113 pruebas y matriz de pantallas por rol |
+| `panel/*.png` | Capturas del panel: dashboard, bitácora, asistencia y pases |
 
-## 6. Cómo reproducir
+## 6. Punto de acceso y panel web
+
+- **Punto de acceso** (`src/punto_acceso.py`, usuario `u_punto`): lee el QR, llama a `p_verificar_persona`, compara el rostro con OpenCV (LBPH; el umbral sale de `parametros`) y llama a `p_registrar_acceso`. La decisión la toma Oracle; el programa solo informa. Incluye modo `--simular` para probar sin cámara.
+- **Panel web** (`src/app.py`, Flask + plantilla SB Admin): login por rol; cada rol usa su usuario de Oracle y solo ve sus pantallas. Dashboard, personas, bitácora de accesos con filtros, asistencia (programar, cancelar y cerrar sesiones), incidencias, pases, restricciones y reportes con descarga CSV.
+- **Pruebas**: 113 automáticas (Oracle real y cámara simulada), todas OK.
+
+## 7. Cómo reproducir
 
 ```
+# Base de datos (contenedor oracle-xe encendido)
 00_admin.sql (SYSTEM) -> 01_esquema.sql -> 02_datos.sql -> 03_procedimientos.sql
--> 04_reportes.sql -> 05_triggers.sql -> 06_permisos.sql   (los cinco últimos como acceso_owner)
-Pruebas: test_03.sql, test_04.sql, test_05_06.sql          Reinicio: 99_reset.sql
+-> 04_reportes.sql -> 05_triggers.sql -> 06_permisos.sql   (los seis últimos como acceso_owner)
+Pruebas SQL: test_03.sql, test_04.sql, test_05_06.sql      Reinicio: 99_reset.sql
+
+# Aplicación
+python3 -m venv venv && ./venv/bin/pip install -r requirements.txt
+cp .env.example .env                     # completar las claves
+./venv/bin/python src/main.py            # menú de consola: punto de acceso y administración
+./venv/bin/python src/app.py             # panel web en http://127.0.0.1:5000
+./venv/bin/python -m unittest discover -s tests
 ```
 
-## 7. Pendientes y límites conocidos
+## 8. Pendientes y límites conocidos
 
-- Las marcas de tiempo se guardan en hora del servidor (UTC en este contenedor); solo las ventanas horarias de `permisos_zona` se evalúan en `America/Lima`.
-- Un docente solo puede ver reportes; cerrar sesiones es del administrador. Falta validar que un docente consulte únicamente sus propias secciones.
+- Las marcas de tiempo se guardan en hora del servidor (UTC en este contenedor); las ventanas horarias de `permisos_zona`, los reportes y el panel usan la hora local `America/Lima`. El desfase se calcula con la hora actual, así que no serviría para una zona con cambio de horario (Lima no lo tiene).
+- Un docente solo puede ver reportes; cerrar sesiones es del administrador. Todos los docentes comparten el usuario `u_docente`, así que cada uno ve todas las secciones; separarlos requeriría un usuario por docente.
 - `p_registrar_acceso` no distingue el sentido del punto: un visitante con el pase vencido tampoco puede salir por la puerta de salida.
 - La auditoría cubre `personas` y `restricciones`, no pases ni incidencias.
-- No hay procedimientos para crear secciones, sesiones ni inscripciones (se cargan por script).
+- Las sesiones se programan y cancelan desde el panel, pero no hay procedimientos para crear secciones ni inscripciones (se cargan por script).
+- El rostro no se registra desde la web: se hace en el punto de acceso (opción 2.3 del menú de consola).
+- La cámara real y el panel en un navegador de escritorio no se probaron: se verificaron con cámara simulada, el cliente de pruebas de Flask y capturas de Firefox sin interfaz.
 - Los rostros y modelos LBPH siguen en disco (`datos/`, fuera del repositorio), no en la base.
 - Las claves de los usuarios de la base están en `00_admin.sql` por ser un proyecto de curso.

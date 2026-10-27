@@ -1,0 +1,212 @@
+ETAPA 6 - Python del punto de acceso (salida real)
+Fecha del equipo: 2026-10-27 15:22:24   Python 3.12.3
+oracledb 26.1.0 | opencv-contrib-python 4.14.0.94 | zxing-cpp 3.1.1 | qrcode 8.2 | numpy 2.5.4
+
+==================================================================
+1. PRUEBAS AUTOMATICAS (unittest, Oracle real + camara falsa)
+   ./venv/bin/python -m unittest discover -s tests -v
+==================================================================
+test_borrar_archivos_solo_toca_la_carpeta_de_datos (test_etapa6.TestArchivosBiometricos.test_borrar_archivos_solo_toca_la_carpeta_de_datos) ... ok
+test_clave_incorrecta_por_parametro (test_etapa6.TestConexion.test_clave_incorrecta_por_parametro) ... ok
+test_sesion_de_u_punto_con_esquema_del_dueno (test_etapa6.TestConexion.test_sesion_de_u_punto_con_esquema_del_dueno) ... ok
+test_sin_clave_se_avisa_con_un_error_claro (test_etapa6.TestConexion.test_sin_clave_se_avisa_con_un_error_claro) ... ok
+test_u_punto_no_puede_leer_tablas (test_etapa6.TestConexion.test_u_punto_no_puede_leer_tablas) ... ok
+test_codigo_invalido_no_se_acepta_en_rutas (test_etapa6.TestConfig.test_codigo_invalido_no_se_acepta_en_rutas) ... ok
+test_env_conserva_el_numeral_dentro_de_la_clave (test_etapa6.TestConfig.test_env_conserva_el_numeral_dentro_de_la_clave) ... ok
+test_rol_desconocido (test_etapa6.TestConfig.test_rol_desconocido) ... ok
+test_rutas_biometricas_dentro_de_datos (test_etapa6.TestConfig.test_rutas_biometricas_dentro_de_datos) ... ok
+test_usuarios_por_defecto (test_etapa6.TestConfig.test_usuarios_por_defecto) ... ok
+test_camara_que_falla_termina_sin_error (test_etapa6.TestLecturaQR.test_camara_que_falla_termina_sin_error) ... ok
+test_lee_el_codigo_de_un_qr (test_etapa6.TestLecturaQR.test_lee_el_codigo_de_un_qr) ... ok
+test_sin_qr_vence_el_tiempo_y_devuelve_none (test_etapa6.TestLecturaQR.test_sin_qr_vence_el_tiempo_y_devuelve_none) ... ok
+test_codigo_inexistente_no_pide_el_rostro (test_etapa6.TestProcesarLectura.test_codigo_inexistente_no_pide_el_rostro) ... ok
+test_ejecutar_acceso_cancelado_con_esc (test_etapa6.TestProcesarLectura.test_ejecutar_acceso_cancelado_con_esc) ... ok
+test_ejecutar_acceso_imprime_el_resultado (test_etapa6.TestProcesarLectura.test_ejecutar_acceso_imprime_el_resultado) ... ok
+test_ejecutar_acceso_sin_qr (test_etapa6.TestProcesarLectura.test_ejecutar_acceso_sin_qr) ... ok
+test_linea_de_comandos_con_simulacion (test_etapa6.TestProcesarLectura.test_linea_de_comandos_con_simulacion) ... ok
+test_persona_activa_se_verifica_con_el_umbral_de_la_base (test_etapa6.TestProcesarLectura.test_persona_activa_se_verifica_con_el_umbral_de_la_base) ... ok
+test_persona_inactiva_no_pide_el_rostro (test_etapa6.TestProcesarLectura.test_persona_inactiva_no_pide_el_rostro) ... ok
+test_persona_restringida_llega_a_la_regla_de_restriccion (test_etapa6.TestProcesarLectura.test_persona_restringida_llega_a_la_regla_de_restriccion) ... ok
+test_punto_inexistente_se_informa_sin_romper (test_etapa6.TestProcesarLectura.test_punto_inexistente_se_informa_sin_romper) ... ok
+test_rostro_que_no_coincide (test_etapa6.TestProcesarLectura.test_rostro_que_no_coincide) ... ok
+test_zona_no_autorizada (test_etapa6.TestProcesarLectura.test_zona_no_autorizada) ... ok
+test_alta_con_biometria_exitosa (test_etapa6.TestRegistroPersonas.test_alta_con_biometria_exitosa) ... ok
+test_ciclo_completo_alta_edicion_busqueda_y_eliminacion (test_etapa6.TestRegistroPersonas.test_ciclo_completo_alta_edicion_busqueda_y_eliminacion) ... ok
+test_codigo_duplicado_es_error_controlado (test_etapa6.TestRegistroPersonas.test_codigo_duplicado_es_error_controlado) ... ok
+test_enrolar_persona_existente_usa_su_codigo (test_etapa6.TestRegistroPersonas.test_enrolar_persona_existente_usa_su_codigo) ... ok
+test_enrolar_persona_que_no_existe (test_etapa6.TestRegistroPersonas.test_enrolar_persona_que_no_existe) ... ok
+test_estudiante_se_guarda_con_su_subtipo (test_etapa6.TestRegistroPersonas.test_estudiante_se_guarda_con_su_subtipo) ... ok
+test_listado_de_escuelas (test_etapa6.TestRegistroPersonas.test_listado_de_escuelas) ... ok
+test_si_falla_la_biometria_se_deshace_el_alta (test_etapa6.TestRegistroPersonas.test_si_falla_la_biometria_se_deshace_el_alta) ... ok
+test_si_la_captura_lanza_una_excepcion_tambien_se_deshace (test_etapa6.TestRegistroPersonas.test_si_la_captura_lanza_una_excepcion_tambien_se_deshace) ... ok
+test_un_duplicado_no_borra_a_la_persona_original (test_etapa6.TestRegistroPersonas.test_un_duplicado_no_borra_a_la_persona_original) ... ok
+test_nombre_de_procedimiento_se_valida (test_etapa6.TestRepositorio.test_nombre_de_procedimiento_se_valida) ... ok
+test_parametro_inexistente_da_error_controlado (test_etapa6.TestRepositorio.test_parametro_inexistente_da_error_controlado) ... ok
+test_punto_inexistente_es_error_controlado (test_etapa6.TestRepositorio.test_punto_inexistente_es_error_controlado) ... ok
+test_registrar_acceso_permitido_y_denegado_no_es_error (test_etapa6.TestRepositorio.test_registrar_acceso_permitido_y_denegado_no_es_error) ... ok
+test_u_punto_no_puede_usar_procedimientos_de_otro_rol (test_etapa6.TestRepositorio.test_u_punto_no_puede_usar_procedimientos_de_otro_rol) ... ok
+test_umbral_lbph_viene_de_la_tabla_parametros (test_etapa6.TestRepositorio.test_umbral_lbph_viene_de_la_tabla_parametros) ... ok
+test_verificar_persona_existente (test_etapa6.TestRepositorio.test_verificar_persona_existente) ... ok
+test_verificar_persona_inexistente (test_etapa6.TestRepositorio.test_verificar_persona_inexistente) ... ok
+test_acotar_valores_enormes_o_infinitos (test_etapa6.TestVerificarRostro.test_acotar_valores_enormes_o_infinitos) ... ok
+test_camara_que_no_entrega_imagen (test_etapa6.TestVerificarRostro.test_camara_que_no_entrega_imagen) ... ok
+test_coincide_con_el_rostro_del_modelo (test_etapa6.TestVerificarRostro.test_coincide_con_el_rostro_del_modelo) ... ok
+test_modelo_danado_se_trata_como_sin_modelo (test_etapa6.TestVerificarRostro.test_modelo_danado_se_trata_como_sin_modelo) ... ok
+test_no_coincide_con_otro_rostro_y_la_confianza_cabe_en_la_base (test_etapa6.TestVerificarRostro.test_no_coincide_con_otro_rostro_y_la_confianza_cabe_en_la_base) ... ok
+test_sin_modelo (test_etapa6.TestVerificarRostro.test_sin_modelo) ... ok
+test_sin_rostro_en_la_imagen (test_etapa6.TestVerificarRostro.test_sin_rostro_en_la_imagen) ... ok
+
+----------------------------------------------------------------------
+Ran 49 tests in 3.568s
+
+OK
+
+==================================================================
+2. PUNTO DE ACCESO EN MODO SIMULADO (usuario Oracle u_punto, sin camara)
+==================================================================
+
+$ python src/punto_acceso.py --simular 90000001 --rostro-ok 1 --confianza 21.5
+Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
+========================================================
+  ACCESO PERMITIDO
+  Persona   : Ricardo Salas Medina (vigilante)
+  Punto     : 1
+  Confianza : 21.50 (menor es mejor)
+  Registro  : #1572
+========================================================
+
+$ python src/punto_acceso.py --simular 25200001 --rostro-ok 0 --confianza 68.5
+Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
+========================================================
+  ACCESO DENEGADO
+  Persona   : Ana Torres Quispe (estudiante)
+  Punto     : 1
+  Confianza : 68.50 (menor es mejor)
+  Motivo    : rostro_no_coincide - El rostro no coincide con el del QR.
+  Registro  : #1573
+========================================================
+
+$ python src/punto_acceso.py --simular 00000000
+Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
+========================================================
+  ACCESO DENEGADO
+  Codigo    : 00000000 (no registrado)
+  Punto     : 1
+  Motivo    : codigo_inexistente - El codigo no esta registrado.
+  Registro  : #1574
+========================================================
+
+$ python src/punto_acceso.py --simular 25200009 --rostro-ok 1 --confianza 20
+Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
+========================================================
+  ACCESO DENEGADO
+  Persona   : Camila Rojas Prado (estudiante)
+  Punto     : 1
+  Motivo    : persona_inactiva - La persona esta inactiva o suspendida.
+  Registro  : #1575
+========================================================
+
+$ python src/punto_acceso.py --simular 25200010 --rostro-ok 1 --confianza 23
+Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
+========================================================
+  ACCESO DENEGADO
+  Persona   : Miguel Navarro Pinto (estudiante)
+  Punto     : 1
+  Confianza : 23.00 (menor es mejor)
+  Motivo    : persona_restringida - Persona con restriccion vigente. Se genero una incidencia.
+  Registro  : #1576
+========================================================
+
+$ python src/punto_acceso.py --simular 25200003 --rostro-ok 1 --confianza 22 --punto 7
+Punto de control 7 | umbral LBPH 40 | usuario Oracle u_punto
+========================================================
+  ACCESO DENEGADO
+  Persona   : Maria Gomez Flores (estudiante)
+  Punto     : 7
+  Confianza : 22.00 (menor es mejor)
+  Motivo    : zona_no_autorizada - No esta autorizado para esta zona.
+  Registro  : #1577
+========================================================
+
+$ python src/punto_acceso.py --simular 99000002 --rostro-ok 1 --confianza 26
+Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
+========================================================
+  ACCESO DENEGADO
+  Persona   : Hugo Villanueva Rey (visitante)
+  Punto     : 1
+  Confianza : 26.00 (menor es mejor)
+  Motivo    : sin_pase_vigente - No tiene un pase vigente para esta zona.
+  Registro  : #1578
+========================================================
+
+$ python src/punto_acceso.py --simular 90000001 --punto 99
+Punto de control 99 | umbral LBPH 40 | usuario Oracle u_punto
+No se pudo registrar el acceso: El punto de control 99 no existe
+
+==================================================================
+3. ERROR DE CAMARA CONTROLADO (indice 99 inexistente)
+==================================================================
+
+$ CAMERA_INDEX=99 python src/punto_acceso.py --una-vez
+
+> must be less than
+
+
+Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
+
+Acerque su codigo QR a la camara (ESC para salir)...
+Error de camara: No se pudo abrir la camara 99. Revise la conexion o CAMERA_INDEX en .env.
+codigo de salida: 3
+
+==================================================================
+4. MENU DE CONSOLA: panel de administracion (usuario Oracle u_admin)
+==================================================================
+
+Entradas: 3 (panel), 3.2 (buscar) con texto 'Torres', 0, 0
+
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+	MENU PRINCIPAL
+	1. Acceder
+	2. Registrar Persona
+	3. Panel de Administracion
+	0. Salir
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+
+Seleccione una opcion: 
++~~~ PANEL DE ADMINISTRACION ~~~+
+3.1 Ver personas
+3.2 Buscar personas
+3.3 Dar de baja o eliminar una persona
+3.4 Editar informacion
+0. Volver al menu principal
+
+Selecciona una opcion: Texto a buscar (codigo, nombre o DNI; vacio = todos): Tipo (vacio = todos): Estado (vacio = todos): Codigo    Nombre                          Tipo            Estado      DNI       
+--------------------------------------------------------------------------------
+25200001  Ana Torres Quispe               estudiante      activo      75000010  
+Total: 1
+
++~~~ PANEL DE ADMINISTRACION ~~~+
+3.1 Ver personas
+3.2 Buscar personas
+3.3 Dar de baja o eliminar una persona
+3.4 Editar informacion
+0. Volver al menu principal
+
+Selecciona una opcion: Redireccionando ...
+
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+	MENU PRINCIPAL
+	1. Acceder
+	2. Registrar Persona
+	3. Panel de Administracion
+	0. Salir
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+
+Seleccione una opcion: Saliendo del programa ...
+
+--- Sin DB_PASSWORD_ADMIN el menu pide la clave y rechaza las incorrectas
+Credenciales incorrectas. 2 intentos restantes.
+Credenciales incorrectas. 1 intentos restantes.
+Credenciales incorrectas. 0 intentos restantes.
+Acceso denegado.
+Seleccione una opcion: Saliendo del programa ...

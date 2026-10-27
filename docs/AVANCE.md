@@ -248,3 +248,74 @@ Bitácora generada por los triggers (9 filas): `U_ADMIN` hizo 2 `INSERT`, 2 `UPD
 ### Estado
 
 El resumen describe lo hecho hasta la Etapa 4 y lista los límites conocidos. Se actualizará al terminar las Etapas 6 y 7 (Python y panel web).
+
+---
+
+## Etapa 6 - Python del punto de acceso (completada, falta probar con la webcam real)
+
+### Qué se hizo
+
+| Archivo | Función |
+|---|---|
+| `src/config.py`, `.env.example` | Configuración central: DSN `localhost:1521/XEPDB1`, usuario y clave por rol (las claves salen de `.env`, que no se versiona), rutas de `datos/`, cámara y tiempos de espera |
+| `src/db.py` | `get_connection(rol)`: conecta con el usuario Oracle del rol y ejecuta `alter session set current_schema = ACCESO_OWNER`. Convierte los `ORA-200xx` en `ErrorAplicacion` |
+| `src/repositorio.py` | Única capa que habla con Oracle, solo con procedimientos: `verificar_persona`, `registrar_acceso`, `obtener_umbral_lbph`, `registrar/modificar/eliminar/listar/buscar_personas`, `consultar_cursor` para REF CURSOR |
+| `src/punto_acceso.py` | Flujo del punto: QR, `p_verificar_persona`, rostro, `p_registrar_acceso`, resultado en pantalla. Conecta con `u_punto`. Modo kiosco, `--una-vez`, `--punto N` y `--simular` |
+| `src/camara.py` | Apertura de cámara y localización del clasificador Haar |
+| `src/escanear_qr.py`, `src/acceder_rostro.py` | Lectura de QR y verificación LBPH, ahora con tiempo máximo, confianza devuelta y cámara inyectable para pruebas |
+| `src/biometria.py`, `src/registro.py` | Rostros, modelo y QR en `datos/`; alta de personas con `p_registrar_persona` (rol admin) |
+| `src/admin.py`, `src/main.py` | Menú de consola y panel de administración sobre Oracle (ya no hay `alumnos.csv`) |
+| `src/generar_qr.py`, `grabar_modelo.py`, `video_pregrabado.py` | Se conservan, con rutas centralizadas y sin código de CSV |
+| `tests/test_etapa6.py` | 49 pruebas automáticas |
+| `requirements.txt` | Dependencias del proyecto |
+| `sql/04_reportes.sql` | Se agregó `r_escuelas` (catálogo para elegir la escuela al registrar un estudiante, porque el rol admin no lee tablas) |
+
+Se retiraron `acceder.py` y `verificar_codigo_en_csv.py`: los reemplazan `punto_acceso.py` y Oracle.
+
+### Cómo ejecutarlo
+
+```
+python3 -m venv venv && ./venv/bin/pip install -r requirements.txt
+cp .env.example .env        # completar las claves (están en sql/00_admin.sql)
+
+./venv/bin/python src/main.py                     # menú de consola
+./venv/bin/python src/punto_acceso.py             # punto de acceso (modo kiosco)
+./venv/bin/python src/punto_acceso.py --simular 25200001 --rostro-ok 1 --confianza 24.5   # sin cámara
+./venv/bin/python -m unittest discover -s tests -v
+```
+
+### Decisiones tomadas
+
+1. **La decisión la toma la base.** El programa solo lee el QR, mide el rostro e informa lo que devuelve `p_registrar_acceso`. Si el código no existe o la persona no está activa, no se enciende la cámara para el rostro: la base lo deniega antes (reglas a y b).
+2. **El umbral LBPH sale de la tabla `parametros`** (`UMBRAL_LBPH`, 40) mediante `p_obtener_parametro`, no está escrito en el código. Se lee una vez al iniciar el punto.
+3. **Tiempos de espera**: el QR espera 30 s y el rostro 20 s (cambiables en `.env`). Antes el bucle de rostro no tenía límite. ESC cancela la lectura del QR.
+4. **Rutas centralizadas** en `config.py`, siempre dentro de `datos/`: `datos/faces/<codigo>/`, `datos/models/modelo_lbph_<codigo>.yml` y `datos/qrcodes/qr_<codigo>.png`. Antes había tres convenciones distintas (`face_recognition_app/...`, `../faces`, `qrcodes`). Si ya tienes modelos del proyecto anterior, hay que copiarlos a `datos/models/`.
+5. **Alta de personas**: primero `p_registrar_persona` (así un código o DNI repetido falla antes de usar la cámara) y después se capturan rostros, se entrena el modelo y se genera el QR. Si esa segunda parte falla, se deshace el alta con `p_eliminar_persona` y se borran los archivos. Un alta duplicada nunca borra a la persona original.
+6. **Clave del administrador**: se eliminó la clave escrita en `main.py`. El menú usa `DB_PASSWORD_ADMIN` de `.env` o, si está vacía, la pide por consola (tres intentos) y la valida contra Oracle.
+7. **Las 17 personas de prueba no tienen modelo facial en disco**: para usar la cámara con ellas está la opción 2.3 del menú (registrar solo el rostro de una persona que ya existe en la base).
+
+### Problemas encontrados y corregidos
+
+- **Confianza gigante**: cuando el rostro es muy distinto, OpenCV devuelve `-1` y una confianza de `1.797e308` (con el `threshold=100` del entrenamiento). Ese valor no cabe en `accesos.confianza` (`number(6,2)`) y `p_registrar_acceso` lo rechaza. Se acota a `9999.99`. Una prueba con un modelo sintético lo reprodujo.
+- **Clasificador Haar**: el OpenCV instalado por el sistema no trae `cv2.data`, y la rama 5.x de `opencv-contrib-python` ya no incluye los archivos XML. El `requirements.txt` fija `opencv-contrib-python>=4.6,<5` y `camara.py` busca el clasificador también en carpetas del sistema, con un mensaje claro si no lo encuentra.
+- `grabar_modelo.py` llamaba a `cv2.waitKey` dos veces por vuelta y podía perder pulsaciones de `p` o `q`; ahora lo hace una vez.
+
+### Pruebas
+
+`tests/test_etapa6.py`: 49 pruebas, todas OK, sobre Oracle real (usuarios `u_punto` y `u_admin`) y con una cámara falsa:
+
+- Conexión: sesión de `U_PUNTO` con esquema `ACCESO_OWNER`; `u_punto` no puede leer tablas (`ORA-00942`) ni usar procedimientos de otro rol (`PLS-00201`); falta de clave y clave incorrecta.
+- Flujo del punto con rostro simulado: código inexistente y persona inactiva (sin pedir el rostro), rostro que no coincide, persona restringida, zona no autorizada, punto inexistente, QR no encontrado y lectura cancelada.
+- Rostro con un modelo LBPH sintético: coincidencia (confianza 0), no coincidencia (confianza acotada a 9999.99), sin rostro, sin modelo, modelo dañado y cámara sin imagen.
+- QR: lectura de un código generado, vencimiento del tiempo y cámara sin imagen.
+- Alta de personas: ciclo completo con subtipo, duplicado (`ORA-20005`), compensación cuando falla la biometría o la captura lanza una excepción, y borrado de archivos acotado a la carpeta de datos.
+
+Además se ejecutaron el modo `--simular` (8 casos), el menú de consola (panel de administración con la clave de `.env`, búsqueda, y clave incorrecta tres veces) y el error de cámara con un índice inexistente (código de salida 3, el menú sigue funcionando). Cada ejecución de las pruebas agrega filas de prueba a `accesos` con método `simulado`.
+
+### Lo que NO se probó
+
+La **cámara real**. No encendí la webcam porque capturaría tu imagen; la lectura de QR y la verificación de rostro se probaron con fotogramas generados. Pendiente para ti: `./venv/bin/python src/main.py`, opción 2.3 para registrar tu rostro con un código existente (por ejemplo 25200001) y opción 1 para probar el acceso con el QR en `datos/qrcodes/`.
+
+### Evidencia
+
+- `docs/evidencia/etapa6_python.txt`

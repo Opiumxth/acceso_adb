@@ -1,0 +1,7 @@
+# Dependencias de Python (usar un entorno virtual: python3 -m venv venv)
+oracledb>=2.0        # conexion a Oracle (modo thin, no requiere Oracle Client)
+opencv-contrib-python>=4.6,<5   # camara y LBPH (cv2.face); la rama 5.x ya no trae los clasificadores Haar
+numpy>=1.26
+zxing-cpp>=2.2       # lectura de codigos QR
+qrcode[pil]>=7.4     # generacion de codigos QR
+Flask>=3.0           # panel web (Etapa 7)

@@ -472,6 +472,25 @@ end r_flujo_por_hora;
 /
 
 -- ---------------------------------------------------------------------
+-- r_escuelas: catalogo para listas desplegables (consola y panel web).
+-- Los roles no leen tablas, asi que las listas tambien salen de un
+-- procedimiento.
+-- ---------------------------------------------------------------------
+create or replace procedure r_escuelas (
+    o_cursor out sys_refcursor
+) is
+begin
+    open o_cursor for
+        select id_escuela, nombre, facultad
+          from escuelas
+         order by id_escuela;
+exception
+    when others then
+        raise_application_error(-20099, 'r_escuelas: ' || sqlerrm);
+end r_escuelas;
+/
+
+-- ---------------------------------------------------------------------
 -- Verificacion de compilacion (no debe listar errores)
 -- ---------------------------------------------------------------------
 prompt

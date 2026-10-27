@@ -1,82 +1,53 @@
-import csv
-import os
-import shutil
+"""Operaciones del panel de administracion por consola.
 
-ALUMNOS_FILE = os.path.join(os.path.dirname(__file__), "..", "alumnos.csv")
+Todas reciben una conexion abierta con el rol admin (u_admin) y trabajan con
+procedimientos de Oracle; ya no hay archivo alumnos.csv.
+"""
+import biometria
+import repositorio
 
-def mostrar_alumnos():
-    with open(ALUMNOS_FILE, mode='r', newline='', encoding='utf-8') as file:
-        reader = csv.DictReader(file)
-        print("Alumnos registrados:")
-        for row in reader:
-            print(f"Código: {row['codigo']} | Nombre: {row['nombre']} | Carrera: {row['carrera']}")
 
-def borrar_alumno(codigo):
-    encontrado = False
-    rows = []
-    with open(ALUMNOS_FILE, mode='r', newline='', encoding='utf-8') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            if row['codigo'] == codigo:
-                encontrado = True
-            else:
-                rows.append(row)
-
-    if not encontrado:
-        print("Alumno no encontrado.")
+def mostrar_personas(conn, filas=None):
+    """Lista las personas (todas, o las filas ya filtradas que se pasen)."""
+    if filas is None:
+        filas = repositorio.listar_personas(conn)
+    if not filas:
+        print("No hay personas para mostrar.")
         return
-    
-    with open(ALUMNOS_FILE, mode='w', newline='', encoding='utf-8') as file:
-        fieldnames = ['codigo', 'nombre', 'carrera']
-        writer = csv.DictWriter(file, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(rows)
-        CARPETAS_ALUMNOS = os.path.join(os.path.dirname(__file__), "..", "faces")
-        carpeta_alumno = os.path.join(CARPETAS_ALUMNOS, codigo)
-        if os.path.exists(carpeta_alumno):
-            shutil.rmtree(carpeta_alumno)
-            print(f"Carpeta del alumno {codigo} eliminada.")
-        else:
-            print(f"No se encontró carpeta para el alumno {codigo}.")
+    print(f"{'Codigo':<10}{'Nombre':<32}{'Tipo':<16}{'Estado':<12}{'DNI':<10}")
+    print("-" * 80)
+    for fila in filas:
+        print(f"{fila['codigo']:<10}{fila['nombre']:<32}{fila['tipo']:<16}"
+              f"{fila['estado']:<12}{fila['dni']:<10}")
+    print(f"Total: {len(filas)}")
 
-        project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Goes up to 'face_recognition_app'
-        qrcodes_dir = os.path.join(os.path.dirname(project_dir), "qrcodes")  # Goes up one more level
-        archivo_qr = os.path.join(qrcodes_dir, f"qr_{codigo}.png")
 
-        if os.path.exists(archivo_qr):
-            os.remove(archivo_qr)
-            print(f"QR borrado: {archivo_qr}")
-        else:
-            print(f"QR no encontrado en: {archivo_qr}")
-        models_dir = os.path.join(project_dir,"models")
-        archivo_model=os.path.join(models_dir, f"modelo_lbph_{codigo}.yml")
-        if os.path.exists(archivo_model):
-            os.remove(archivo_model)
-            print(f"Modelo borrado: {archivo_model}")
-        else:
-            print(f"Modelo no encontrado en: {archivo_model}")
-    print(f"Alumno con código {codigo} eliminado.")
+def buscar_personas(conn, texto=None, tipo=None, estado=None):
+    mostrar_personas(conn, repositorio.buscar_personas(conn, texto, tipo, estado))
 
-def editar_informacion(codigo, nuevo_nombre=None, nueva_carrera=None):
-    actualizado = False
-    rows = []
-    with open(ALUMNOS_FILE, mode='r', newline='', encoding='utf-8') as file:
-        reader = csv.DictReader(file)
-        for row in reader:
-            if row['codigo'] == codigo:
-                if nuevo_nombre:
-                    row['nombre'] = nuevo_nombre
-                if nueva_carrera:
-                    row['carrera'] = nueva_carrera
-                actualizado = True
-            rows.append(row)
 
-    if actualizado:
-        with open(ALUMNOS_FILE, mode='w', newline='', encoding='utf-8') as file:
-            fieldnames = ['codigo', 'nombre', 'carrera']
-            writer = csv.DictWriter(file, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(rows)
-        print(f"Alumno con código {codigo} actualizado.")
+def borrar_persona(conn, codigo):
+    """Elimina a la persona (o la da de baja si tiene historial).
+
+    Los archivos biometricos solo se borran si la persona se elimino de verdad;
+    con baja logica se conservan por si se reactiva.
+    """
+    accion = repositorio.eliminar_persona(conn, codigo)
+    if accion == "eliminada":
+        print(f"Persona {codigo} eliminada de la base de datos.")
+        borrados = biometria.borrar_archivos(codigo)
+        for item in borrados:
+            print(f"Se elimino {item}")
+        if not borrados:
+            print("No habia archivos biometricos que borrar.")
     else:
-        print("Código no encontrado.")
+        print(f"La persona {codigo} tiene historial: se dio de baja (estado inactivo). "
+              "Sus archivos biometricos se conservan.")
+    return accion
+
+
+def editar_persona(conn, codigo, nombre=None, dni=None, correo=None, estado=None):
+    """Modifica los datos indicados; los None no se tocan."""
+    repositorio.modificar_persona(conn, codigo, nombre=nombre, dni=dni,
+                                  correo=correo, estado=estado)
+    print(f"Persona {codigo} actualizada.")

@@ -1,0 +1,17 @@
+venv/
+qrcodes/
+faces/
+src/__pycache__/
+face_recognition_app/models/
+face_recognition_app/faces/
+alumnos.csv
+
+
+
+.env
+__pycache__/
+*.pyc
+.venv/
+datos/
+*.yml
+alumnos.csv

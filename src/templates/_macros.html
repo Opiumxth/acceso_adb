@@ -1,0 +1,38 @@
+{# Insignia de color segun el valor (ver panel.clase_insignia) #}
+{% macro badge(valor_) -%}
+<span class="badge bg-{{ valor_|insignia }}">{{ valor_|valor }}</span>
+{%- endmacro %}
+
+{# Tabla generica a partir de la lista de diccionarios que devuelve un cursor.
+   columnas: orden a mostrar (por defecto, las del cursor). badges: columnas que se pintan como insignia. #}
+{% macro tabla(filas, columnas=none, badges=(), vacio='Sin resultados.') -%}
+{% if not filas %}
+<p class="text-muted mb-0">{{ vacio }}</p>
+{% else %}
+{% set cols = columnas if columnas else (filas[0].keys()|list) %}
+<div class="table-responsive">
+    <table class="table table-sm table-striped table-hover align-middle mb-0">
+        <thead class="table-light">
+        <tr>{% for c in cols %}<th>{{ c|columna }}</th>{% endfor %}</tr>
+        </thead>
+        <tbody>
+        {% for f in filas %}
+        <tr>
+            {% for c in cols %}
+            <td>{% if c in badges and f[c] is not none %}{{ badge(f[c]) }}{% else %}{{ f[c]|valor }}{% endif %}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{%- endmacro %}
+
+{# Boton que envia un POST con el token CSRF. confirmar: texto de confirmacion opcional. #}
+{% macro boton_post(url, etiqueta, clase='btn-outline-secondary', icono='', confirmar='') -%}
+<form method="post" action="{{ url }}" class="d-inline"{% if confirmar %} data-confirmar="{{ confirmar }}"{% endif %}>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn btn-sm {{ clase }}">{% if icono %}<i class="fas {{ icono }}"></i> {% endif %}{{ etiqueta }}</button>
+</form>
+{%- endmacro %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tabla %}
+{% block titulo %}{{ reporte.titulo }}{% endblock %}
+{% block contenido %}
+<h1 class="mt-4">{{ reporte.titulo }}</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item"><a href="{{ url_for('reportes') }}">Reportes</a></li>
+    <li class="breadcrumb-item active"><code>{{ reporte.procedimiento }}</code></li>
+</ol>
+<p class="text-muted">{{ reporte.descripcion }}</p>
+
+{% if reporte.parametros %}
+<form method="get" class="card card-body mb-3">
+    <input type="hidden" name="ejecutar" value="1">
+    <div class="row g-2 align-items-end">
+        {% for p in reporte.parametros %}
+        <div class="col-md-3">
+            <label class="form-label small mb-1" for="p_{{ p.nombre }}">{{ p.etiqueta }}</label>
+            {% if p.tipo == 'seccion' %}
+            <select class="form-select" id="p_{{ p.nombre }}" name="{{ p.nombre }}" {% if p.obligatorio %}required{% endif %}>
+                <option value="">{% if p.obligatorio %}Elija una sección{% else %}Todas{% endif %}</option>
+                {% for s in secciones %}
+                <option value="{{ s.id_seccion }}" {% if valores[p.nombre] == s.id_seccion|string %}selected{% endif %}>{{ s.curso }}-{{ s.grupo }} {{ s.nombre_curso }}</option>
+                {% endfor %}
+            </select>
+            {% elif p.tipo == 'zona' %}
+            <select class="form-select" id="p_{{ p.nombre }}" name="{{ p.nombre }}">
+                <option value="">Todas</option>
+                {% for z in zonas %}
+                <option value="{{ z.id_zona }}" {% if valores[p.nombre] == z.id_zona|string %}selected{% endif %}>{{ z.nombre }}</option>
+                {% endfor %}
+            </select>
+            {% elif p.tipo == 'opcion' %}
+            <select class="form-select" id="p_{{ p.nombre }}" name="{{ p.nombre }}">
+                <option value="">Todos</option>
+                {% for o in p.opciones %}<option value="{{ o }}" {% if valores[p.nombre] == o %}selected{% endif %}>{{ o|replace('_', ' ')|capitalize }}</option>{% endfor %}
+            </select>
+            {% elif p.tipo == 'fecha' %}
+            <input class="form-control" id="p_{{ p.nombre }}" name="{{ p.nombre }}" type="date" value="{{ valores[p.nombre] }}">
+            {% else %}
+            <input class="form-control" id="p_{{ p.nombre }}" name="{{ p.nombre }}" inputmode="numeric" value="{{ valores[p.nombre] }}" {% if p.obligatorio %}required{% endif %}>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <div class="col-md-3"><button class="btn btn-primary" type="submit"><i class="fas fa-play"></i> Ejecutar</button></div>
+    </div>
+</form>
+{% endif %}
+
+{% if error %}
+<div class="alert alert-danger">{{ error }}</div>
+{% endif %}
+
+{% if ejecutado and filas is not none %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-table me-1"></i> {{ filas|length }} fila(s)</span>
+        {% if filas %}
+        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('reporte', clave=clave, formato='csv', **request.args.to_dict()) }}"><i class="fas fa-download"></i> Descargar CSV</a>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        {{ tabla(filas) }}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

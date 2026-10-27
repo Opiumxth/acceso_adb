@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{{ titulo }} | Control de Acceso</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/sb-admin/css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css') }}">
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="text-center mt-5">
+                <div class="display-1 text-muted">{{ codigo }}</div>
+                <p class="lead">{{ titulo }}</p>
+                <p>{{ mensaje }}</p>
+                {% if rol %}
+                <a href="{{ url_for('dashboard') }}"><i class="fas fa-arrow-left me-1"></i> Volver al panel</a>
+                {% else %}
+                <a href="{{ url_for('login') }}"><i class="fas fa-arrow-left me-1"></i> Ir a ingresar</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

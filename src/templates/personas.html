@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge, boton_post %}
+{% block titulo %}Personas{% endblock %}
+{% block contenido %}
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <h1 class="h3 mb-0">Personas</h1>
+    {% if puede('personas_editar') %}
+    <a class="btn btn-primary" href="{{ url_for('persona_nueva') }}"><i class="fas fa-user-plus"></i> Nueva persona</a>
+    {% endif %}
+</div>
+
+<form method="get" class="card card-body mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small mb-1" for="texto">Código, nombre o DNI</label>
+            <input class="form-control" id="texto" name="texto" value="{{ texto }}" maxlength="100">
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small mb-1" for="tipo_filtro">Tipo</label>
+            <select class="form-select" id="tipo_filtro" name="tipo">
+                <option value="">Todos</option>
+                {% for t in tipos %}<option value="{{ t }}" {% if t == tipo %}selected{% endif %}>{{ t|capitalize }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1" for="estado">Estado</label>
+            <select class="form-select" id="estado" name="estado">
+                <option value="">Todos</option>
+                {% for e in estados %}<option value="{{ e }}" {% if e == estado %}selected{% endif %}>{{ e|capitalize }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-grid d-md-flex gap-2">
+            <button class="btn btn-primary" type="submit"><i class="fas fa-magnifying-glass"></i> Buscar</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('personas') }}">Limpiar</a>
+        </div>
+    </div>
+</form>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-users me-1"></i> {{ filas|length }} persona(s)</div>
+    <div class="card-body">
+        {% if not filas %}
+        <p class="text-muted mb-0">No hay personas con ese criterio.</p>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr><th>Código</th><th>Nombre</th><th>Tipo</th><th>Estado</th><th>DNI</th><th>Escuela / ciclo / especialidad</th><th>Registro</th>
+                    {% if puede('personas_editar') %}<th></th>{% endif %}</tr>
+                </thead>
+                <tbody>
+                {% for p in filas %}
+                <tr>
+                    <td>{{ p.codigo|valor }}</td>
+                    <td>{{ p.nombre }}</td>
+                    <td>{{ p.tipo }}</td>
+                    <td>{{ badge(p.estado) }}</td>
+                    <td>{{ p.dni|valor }}</td>
+                    <td>{% if p.escuela %}{{ p.escuela }}, ciclo {{ p.ciclo }}{% elif p.especialidad %}{{ p.especialidad }}{% else %}-{% endif %}</td>
+                    <td>{{ p.fecha_registro|valor }}</td>
+                    {% if puede('personas_editar') %}
+                    <td class="text-nowrap">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('persona_editar', codigo=p.codigo|valor) }}"><i class="fas fa-pen"></i> Editar</a>
+                        {{ boton_post(url_for('persona_eliminar', codigo=p.codigo|valor), 'Eliminar', 'btn-outline-danger', 'fa-trash',
+                                      'Eliminar a ' ~ p.nombre ~ '? Si tiene historial se dará de baja (inactivo).') }}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% if not puede('personas_editar') %}
+<p class="text-muted small">Su rol solo puede buscar personas. El alta, la edición y la baja las hace el administrador.</p>
+{% endif %}
+{% endblock %}

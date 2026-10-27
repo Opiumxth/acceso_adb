@@ -325,6 +325,42 @@ create index ix_restric_persona_estado  on restricciones (id_persona, estado)
     tablespace ts_acceso_idx;
 
 -- =====================================================================
+-- FUNCIONES DE APOYO PARA LA HORA LOCAL
+-- Las marcas de tiempo se guardan en hora del servidor (UTC en el contenedor
+-- Docker). El parametro ZONA_HORARIA (tabla parametros) indica la hora local
+-- del campus; los reportes y el panel web la usan para interpretar fechas y
+-- mostrar horas. Se definen aqui porque 02_datos.sql las necesita.
+-- =====================================================================
+
+-- Desfase en dias entre la hora del servidor y la hora local:
+-- servidor - local. Con el servidor en UTC y America/Lima vale 5/24.
+create or replace function f_desfase return number is
+    v_zona   parametros.valor%type;
+    v_ahora  timestamp with time zone := systimestamp;  -- una sola lectura del reloj
+    v_srv    date;
+    v_loc    date;
+begin
+    begin
+        select valor into v_zona from parametros where nombre = 'ZONA_HORARIA';
+    exception
+        when no_data_found then
+            raise_application_error(-20004,
+                'Parametro del sistema no configurado: ZONA_HORARIA');
+    end;
+    v_srv := cast(v_ahora as date);
+    v_loc := cast(v_ahora at time zone v_zona as date);
+    return round((v_srv - v_loc) * 1440) / 1440;
+end f_desfase;
+/
+
+-- Hoy segun la hora local (fecha sin hora)
+create or replace function f_hoy_local return date is
+begin
+    return trunc(sysdate - f_desfase);
+end f_hoy_local;
+/
+
+-- =====================================================================
 -- Verificacion
 -- =====================================================================
 prompt
@@ -344,5 +380,17 @@ select index_name, table_name, tablespace_name
   from user_indexes
  where index_name like 'IX\_%' escape '\'
  order by index_name;
+
+prompt
+prompt === Funciones de apoyo ===
+column object_name format a20
+select object_name, object_type, status
+  from user_objects
+ where object_type = 'FUNCTION'
+ order by object_name;
+
+prompt
+prompt === Errores de compilacion (debe salir vacio) ===
+select name, type, line, text from user_errors order by name, sequence;
 
 commit;

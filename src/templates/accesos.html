@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block titulo %}Bitácora de accesos{% endblock %}
+{% block contenido %}
+<h1 class="mt-4">Bitácora de accesos</h1>
+<ol class="breadcrumb mb-4"><li class="breadcrumb-item active">Lecturas del punto de control, permitidas y denegadas (hora local)</li></ol>
+
+<form method="get" class="card card-body mb-3">
+    <input type="hidden" name="filtrar" value="1">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-2">
+            <label class="form-label small mb-1" for="desde">Desde</label>
+            <input class="form-control" id="desde" name="desde" type="date" value="{{ filtros.desde or '' }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1" for="hasta">Hasta</label>
+            <input class="form-control" id="hasta" name="hasta" type="date" value="{{ filtros.hasta or '' }}">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1" for="resultado">Resultado</label>
+            <select class="form-select" id="resultado" name="resultado">
+                <option value="">Todos</option>
+                <option value="permitido" {% if filtros.resultado == 'permitido' %}selected{% endif %}>Permitido</option>
+                <option value="denegado" {% if filtros.resultado == 'denegado' %}selected{% endif %}>Denegado</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small mb-1" for="zona">Zona</label>
+            <select class="form-select" id="zona" name="zona">
+                <option value="">Todas</option>
+                {% for z in zonas %}<option value="{{ z.id_zona }}" {% if filtros.zona == z.id_zona %}selected{% endif %}>{{ z.nombre }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small mb-1" for="texto">Código o nombre</label>
+            <input class="form-control" id="texto" name="texto" value="{{ filtros.texto }}" maxlength="60">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label small mb-1" for="max">Máximo de filas</label>
+            <select class="form-select" id="max" name="max">
+                {% for n in (50, 100, 200, 500, 1000) %}<option value="{{ n }}" {% if filtros.max == n %}selected{% endif %}>{{ n }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 d-grid d-md-flex gap-2">
+            <button class="btn btn-primary" type="submit"><i class="fas fa-filter"></i> Filtrar</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('accesos') }}">Últimos 7 días</a>
+        </div>
+    </div>
+</form>
+
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-door-open me-1"></i> {{ filas|length }} acceso(s)
+        {% if limite_alcanzado %}<span class="text-muted small">(se muestran los más recientes; hay más con estos filtros)</span>{% endif %}
+    </div>
+    <div class="card-body">
+        {% if not filas %}
+        <p class="text-muted mb-0">No hay accesos con esos filtros.</p>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover align-middle mb-0 tabla-compacta">
+                <thead class="table-light">
+                <tr><th>N.º</th><th>Fecha y hora</th><th>Código</th><th>Persona</th><th>Tipo</th><th>Zona</th><th>Punto</th><th>Resultado</th><th>Motivo</th><th>Método</th><th>Confianza</th></tr>
+                </thead>
+                <tbody>
+                {% for a in filas %}
+                <tr>
+                    <td>{{ a.id_acceso }}</td><td class="text-nowrap">{{ a.fecha_hora }}</td><td>{{ a.codigo }}</td>
+                    <td>{{ a.persona }}</td><td>{{ a.tipo_persona|valor }}</td><td>{{ a.zona }}</td><td>{{ a.punto }}</td>
+                    <td>{{ badge(a.resultado) }}</td><td>{{ a.motivo|valor }}</td><td>{{ a.metodo }}</td><td>{{ a.confianza|valor }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

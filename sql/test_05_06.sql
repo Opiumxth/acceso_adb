@@ -41,6 +41,10 @@ column detalle        format a105 word_wrapped
 column tabla          format a14
 column operacion      format a9
 column hora           format a9
+column nombre_curso   format a34
+column docente        format a22
+column aula           format a14
+column fecha_hora_local format a16
 
 variable n    varchar2(100)
 variable t    varchar2(20)
@@ -57,6 +61,7 @@ variable ir   number
 variable ipase number
 variable ii   number
 variable acc  varchar2(20)
+variable ns   number
 variable c    refcursor
 
 prompt
@@ -111,10 +116,16 @@ prompt -- 2.2 r_alumnos_en_riesgo(2) funciona
 exec r_alumnos_en_riesgo(2, :c)
 print c
 
+prompt -- 2.2b r_secciones (lista de secciones para elegir cual consultar) funciona
+exec r_secciones(:c)
+print c
+
 prompt -- 2.3 p_registrar_acceso: debe FALLAR (PLS-00201)
 exec p_registrar_acceso('25200001', 1, 1, 20, 'simulado', :r, :m, :id)
 prompt -- 2.4 reporte de seguridad r_accesos_denegados: debe FALLAR (PLS-00201)
 exec r_accesos_denegados(null, null, :c)
+prompt -- 2.4b r_resumen_hoy (consulta del panel de seguridad): debe FALLAR (PLS-00201)
+exec r_resumen_hoy(:c)
 prompt -- 2.5 SELECT directo sobre inscripciones: debe FALLAR (ORA-00942)
 select count(*) from inscripciones;
 
@@ -147,9 +158,18 @@ prompt -- 3.4 reporte de seguridad r_accesos_denegados de hoy funciona
 exec r_accesos_denegados(trunc(sysdate), trunc(sysdate), :c)
 print c
 
-prompt -- 3.5 lo que no le corresponde: PLS-00201, PLS-00201 y ORA-00942
+prompt -- 3.4b consultas del panel: resumen del dia, bitacora de denegados y restricciones vigentes
+exec r_resumen_hoy(:c)
+print c
+exec r_accesos_bitacora(null, null, 'denegado', null, null, 3, :c)
+print c
+exec r_restricciones(:c)
+print c
+
+prompt -- 3.5 lo que no le corresponde: PLS-00201 (x3) y ORA-00942
 exec p_registrar_persona('88000009', 'No Debe Crearse', '88000009', null, 'visitante', null, null, null, :ip)
 exec r_asistencia_seccion(1, :c)
+exec r_secciones(:c)
 select count(*) from pases;
 
 prompt
@@ -172,6 +192,11 @@ prompt -- 4.2 persona 88000002 sin historial: alta y eliminacion fisica
 exec p_registrar_persona('88000002', 'Auditoria Prueba Dos', '88000002', null, 'visitante', null, null, null, :ip)
 exec p_eliminar_persona('88000002', :acc)
 select :acc as accion_88000002 from dual;
+
+prompt -- 4.2b sesiones: programar una dentro de 30 dias y cancelarla (solo el admin)
+exec p_crear_sesion(1, systimestamp + interval '30' day, systimestamp + interval '30' day + interval '90' minute, :ns)
+select :ns as id_sesion_creada from dual;
+exec p_cancelar_sesion(:ns)
 
 prompt -- 4.3 reportes y listados funcionan
 exec p_buscar_personas('auditoria', null, null, :c)

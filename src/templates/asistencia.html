@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titulo %}Asistencia{% endblock %}
+{% block contenido %}
+<h1 class="mt-4">Asistencia</h1>
+<ol class="breadcrumb mb-4"><li class="breadcrumb-item active">Elija una sección para ver su asistencia y sus sesiones</li></ol>
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-clipboard-user me-1"></i> Secciones</div>
+    <div class="card-body">
+        {% if not secciones %}
+        <p class="text-muted mb-0">No hay secciones.</p>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr><th>Curso</th><th>Grupo</th><th>Periodo</th><th>Docente</th><th>Aula</th><th>Inscritos</th><th>Sesiones cerradas</th><th>Abiertas</th><th></th></tr>
+                </thead>
+                <tbody>
+                {% for s in secciones %}
+                <tr>
+                    <td>{{ s.curso }} - {{ s.nombre_curso }}</td><td>{{ s.grupo }}</td><td>{{ s.periodo }}</td>
+                    <td>{{ s.docente }}</td><td>{{ s.aula }}</td><td>{{ s.inscritos }}</td>
+                    <td>{{ s.sesiones_cerradas }}</td><td>{{ s.sesiones_abiertas }}</td>
+                    <td><a class="btn btn-sm btn-primary" href="{{ url_for('asistencia_seccion', id_seccion=s.id_seccion) }}">Abrir</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

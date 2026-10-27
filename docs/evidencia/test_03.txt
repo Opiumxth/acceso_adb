@@ -5,7 +5,7 @@
 
 HORA_SERVIDOR	    HORA_
 ------------------- -----
-2026-10-27 19:19:50 14:19
+2026-10-27 20:56:34 15:56
 
 =====================================================================
 1. p_verificar_persona
@@ -28,26 +28,26 @@ NOMBRE			   TIPO 			ESTADO		  EXISTE
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   codigo_inexistente	       1494
+denegado   codigo_inexistente	       1505
 
 ID_ACCESO ID_PERSONA CODIGO_LEIDO	  RESULTADO  MOTIVO
 --------- ---------- -------------------- ---------- ----------------------
-     1494	     00000000		  denegado   codigo_inexistente
+     1505	     00000000		  denegado   codigo_inexistente
 -- 2.2 25200009 (estado inactivo) en la puerta: persona_inactiva
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   persona_inactiva	       1495
+denegado   persona_inactiva	       1506
 -- 2.3 25200003 con rostro que no coincide (rostro_ok = 0): rostro_no_coincide
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   rostro_no_coincide	       1496
+denegado   rostro_no_coincide	       1507
 -- 2.4 25200010 (restriccion vigente): persona_restringida + incidencia alta
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   persona_restringida	       1497
+denegado   persona_restringida	       1508
 
 ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN
 ------------- ---------------------------- --------- ------------- ----------
@@ -56,13 +56,13 @@ ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   zona_no_autorizada	       1498
+denegado   zona_no_autorizada	       1509
 -- 2.6 ventana del estudiante en la puerta fuera de la hora actual: fuera_de_horario
-Hora local 14:19: ventana de la puerta movida fuera de la hora actual
+Hora local 15:56: ventana de la puerta movida fuera de la hora actual
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   fuera_de_horario	       1499
+denegado   fuera_de_horario	       1510
 
 =====================================================================
 3. p_registrar_acceso - VISITANTES
@@ -71,22 +71,22 @@ denegado   fuera_de_horario	       1499
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-permitido  -			       1500
+permitido  -			       1511
 -- 3.2 99000001 en el aula A-101 (punto 4, su pase es de la biblioteca): sin_pase_vigente
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   sin_pase_vigente	       1501
+denegado   sin_pase_vigente	       1512
 -- 3.3 99000001 en la biblioteca (punto 3, pase de esa zona): permitido
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-permitido  -			       1502
+permitido  -			       1513
 -- 3.4 99000002 en la puerta (su pase esta vencido): sin_pase_vigente
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   sin_pase_vigente	       1503
+denegado   sin_pase_vigente	       1514
 
 =====================================================================
 4. ASISTENCIA (sesion 900, seccion 1, aula A-101 = punto 4)
@@ -95,7 +95,7 @@ denegado   sin_pase_vigente	       1503
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-permitido  -			       1504
+permitido  -			       1515
 
  ID_SESION ESTADO
 ---------- -------------
@@ -104,16 +104,16 @@ permitido  -			       1504
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-permitido  -			       1505
+permitido  -			       1516
 
 CODIGO	  ESTADO	HORA	  ID_ACCESO
 --------- ------------- --------- ---------
-25200001  presente	19:19:51       1505
+25200001  presente	20:56:34       1516
 -- 4.3 repetir con 25200001: permitido, pero NO se duplica la asistencia
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-permitido  -			       1506
+permitido  -			       1517
 
 FILAS_25200001_EN_SESION_900
 ----------------------------
@@ -122,23 +122,23 @@ FILAS_25200001_EN_SESION_900
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-permitido  -			       1507
+permitido  -			       1518
 -- 4.5 25200001 vuelve a pasar con 20 min de retraso: no se degrada a tardanza
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-permitido  -			       1508
+permitido  -			       1519
 -- 4.6 25200007 (no inscrito en la seccion 1) en el punto 4: permitido sin asistencia
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-permitido  -			       1509
+permitido  -			       1520
 -- 4.7 asistencias de la sesion 900 hasta ahora (solo 25200001 y 25200002)
 
 CODIGO	  ESTADO	HORA	  ID_ACCESO
 --------- ------------- --------- ---------
-25200001  presente	19:19:51       1505
-25200002  tardanza	19:19:51       1507
+25200001  presente	20:56:34       1516
+25200002  tardanza	20:56:34       1518
 
 =====================================================================
 5. INTENTOS REITERADOS (codigo 12345678, 3 denegados seguidos en la puerta)
@@ -147,22 +147,22 @@ CODIGO	  ESTADO	HORA	  ID_ACCESO
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   codigo_inexistente	       1510
+denegado   codigo_inexistente	       1521
 -- 5.2 segundo intento: sin incidencia
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   codigo_inexistente	       1511
+denegado   codigo_inexistente	       1522
 -- 5.3 tercer intento: se crea la incidencia intentos_reiterados (media)
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   codigo_inexistente	       1512
+denegado   codigo_inexistente	       1523
 -- 5.4 cuarto intento: no se duplica la incidencia abierta
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   codigo_inexistente	       1513
+denegado   codigo_inexistente	       1524
 
 ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN     DESCRIPCION
 ------------- ---------------------------- --------- ------------- ---------- ----------------------------------------------------------------------
@@ -180,8 +180,8 @@ ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN     DESCRIPCION
 
 CODIGO	  ESTADO	HORA
 --------- ------------- ---------
-25200001  presente	19:19:51
-25200002  tardanza	19:19:51
+25200001  presente	20:56:34
+25200002  tardanza	20:56:34
 25200003  falta
 25200005  falta
 25200006  falta
@@ -240,7 +240,7 @@ FECHA_REGISTRO								    ESCUELA												      CICLO
 ESPECIALIDAD
 ----------------------------------------------------------------------------------------------------
       1000 25200012  Persona Modificada 	75000099 modificada@campus.test 									      estudiante		   activo
-27-OCT-26 07.19.51.360862 PM						    Ingenieria de Sistemas											  3
+27-OCT-26 03.56.34.865110000 PM 					    Ingenieria de Sistemas											  3
 
 
 -- 7.5 p_listar_personas: total de filas
@@ -253,7 +253,7 @@ ID_RESTRICCION
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   persona_restringida	       1514
+denegado   persona_restringida	       1525
 
 TIPO			     GRAVEDAD  ESTADO	     ORIGEN
 ---------------------------- --------- ------------- ----------
@@ -261,11 +261,11 @@ persona_restringida	     alta      abierta	     sistema
 
 ID_RESTRICCION ESTADO	     FECHA_FIN
 -------------- ------------- ----------------
-	  1001 levantada     2026-10-27 19:19
+	  1001 levantada     2026-10-27 20:56
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-permitido  -			       1515
+permitido  -			       1526
 -- 7.7 pases: se emite un pase para 99000002 al aula A-101 (zona 3), entra, se revoca y vuelve a ser denegado
 
    ID_PASE
@@ -274,7 +274,7 @@ permitido  -			       1515
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-permitido  -			       1516
+permitido  -			       1527
 
    ID_PASE ESTADO
 ---------- -------------
@@ -282,7 +282,7 @@ permitido  -			       1516
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   sin_pase_vigente	       1517
+denegado   sin_pase_vigente	       1528
 -- 7.8 incidencias del vigilante: se registra, pasa a en_revision y se resuelve
 
 ID_INCIDENCIA
@@ -292,7 +292,7 @@ ID_INCIDENCIA
 ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN     DESCRIPCION
 ------------- ---------------------------- --------- ------------- ---------- ----------------------------------------------------------------------
 	 1008 puerta_laboratorio_abierta   media     resuelta	   vigilante  Puerta del laboratorio abierta fuera de horario | en_revision 2026-10-
-									      27 19:19: Se avisa al encargado | resuelta 2026-10-27 19:19: Puerta ce
+									      27 20:56: Se avisa al encargado | resuelta 2026-10-27 20:56: Puerta ce
 									      rrada con llave
 
 -- 7.9 p_eliminar_persona: 25200012 tiene accesos, entonces baja logica
@@ -307,7 +307,7 @@ CODIGO	  ESTADO
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
-denegado   persona_inactiva	       1518
+denegado   persona_inactiva	       1529
 -- 7.10 persona sin historial (25200013): se elimina fisicamente
 
 ACCION
@@ -326,7 +326,7 @@ FILAS_25200013
 8.3 codigo vacio -> ORA-20001: El codigo leido es obligatorio
 8.4 metodo invalido -> ORA-20001: Metodo no valido: telepatia
 8.5 restriccion inexistente -> ORA-20002: La restriccion 999999 no existe
-Accesos antes y despues de los 4 llamados fallidos: 519 y 519 (sin cambios)
+Accesos antes y despues de los 4 llamados fallidos: 530 y 530 (sin cambios)
 
 =====================================================================
 9. RESTAURAR VENTANAS HORARIAS Y RESUMEN
@@ -345,7 +345,7 @@ estudiante	Biblioteca Central	     08:00 20:00
 estudiante	Aula A-101		     07:00 22:00
 estudiante	Aula A-102		     07:00 22:00
 estudiante	Laboratorio de Computo 1     08:00 20:00
--- accesos de esta prueba (hoy, metodo simulado), por resultado y motivo
+-- accesos generados por esta prueba (metodo simulado), por resultado y motivo
 
 RESULTADO  MOTIVO		       TOTAL
 ---------- ---------------------- ----------
@@ -357,7 +357,7 @@ denegado   rostro_no_coincide		   1
 denegado   sin_pase_vigente		   3
 denegado   zona_no_autorizada		   1
 permitido  -				  10
--- incidencias creadas hoy
+-- incidencias creadas por esta prueba
 
 ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN
 ------------- ---------------------------- --------- ------------- ----------

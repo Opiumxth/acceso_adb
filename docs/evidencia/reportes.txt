@@ -3,93 +3,93 @@
 1. r_asistencia_seccion(1): seccion 1 (SIS301-A), solo sesiones cerradas
 =====================================================================
 
-CODIGO	  NOMBRE		  PRESENTES  TARDANZAS	   FALTAS SESIONES_CERRADAS PCT_ASISTENCIA ESTADO_INSCRIPCION
---------- ---------------------- ---------- ---------- ---------- ----------------- -------------- -------------------
-25200001  Ana Torres Quispe		  6	     1		1		  8	      87.5 activa
-25200002  Luis Ramirez Huaman		  6	     1		1		  8	      87.5 activa
-25200003  Maria Gomez Flores		  6	     0		2		  8		75 activa
-25200004  Diego Castillo Rojas		  2	     1		3		  8	      37.5 inhabilitado
-25200005  Sofia Herrera Diaz		  3	     2		3		  8	      62.5 inhabilitado
-25200006  Pedro Vargas Leon		  5	     1		2		  8		75 activa
+CODIGO	  NOMBRE		      PRESENTES  TARDANZAS     FALTAS SESIONES_CERRADAS PCT_ASISTENCIA ESTADO_INSCRIPCION
+--------- -------------------------- ---------- ---------- ---------- ----------------- -------------- -------------------
+25200001  Ana Torres Quispe		      6 	 1	    1		      8 	  87.5 activa
+25200002  Luis Ramirez Huaman		      6 	 1	    1		      8 	  87.5 activa
+25200003  Maria Gomez Flores		      6 	 0	    2		      8 	    75 activa
+25200004  Diego Castillo Rojas		      2 	 1	    3		      8 	  37.5 inhabilitado
+25200005  Sofia Herrera Diaz		      3 	 2	    3		      8 	  62.5 inhabilitado
+25200006  Pedro Vargas Leon		      5 	 1	    2		      8 	    75 activa
 
 === r_asistencia_seccion(3): seccion 3 (SIS201-A, laboratorio)
 
-CODIGO	  NOMBRE		  PRESENTES  TARDANZAS	   FALTAS SESIONES_CERRADAS PCT_ASISTENCIA ESTADO_INSCRIPCION
---------- ---------------------- ---------- ---------- ---------- ----------------- -------------- -------------------
-25200003  Maria Gomez Flores		  3	     3		0		  6	       100 activa
-25200004  Diego Castillo Rojas		  4	     2		0		  6	       100 activa
-25200005  Sofia Herrera Diaz		  5	     0		1		  6	      83.3 activa
-25200009  Camila Rojas Prado		  4	     2		0		  6	       100 activa
-25200010  Miguel Navarro Pinto		  4	     1		1		  6	      83.3 activa
+CODIGO	  NOMBRE		      PRESENTES  TARDANZAS     FALTAS SESIONES_CERRADAS PCT_ASISTENCIA ESTADO_INSCRIPCION
+--------- -------------------------- ---------- ---------- ---------- ----------------- -------------- -------------------
+25200003  Maria Gomez Flores		      3 	 3	    0		      6 	   100 activa
+25200004  Diego Castillo Rojas		      4 	 2	    0		      6 	   100 activa
+25200005  Sofia Herrera Diaz		      5 	 0	    1		      6 	  83.3 activa
+25200009  Camila Rojas Prado		      4 	 2	    0		      6 	   100 activa
+25200010  Miguel Navarro Pinto		      4 	 1	    1		      6 	  83.3 activa
 
 =====================================================================
 2. r_asistencia_sesion(900): detalle de la sesion 900
 =====================================================================
 
-CODIGO	  NOMBRE		 ASISTENCIA    HORA_REGISTRO  ID_ACCESO ESTADO_INSCRIPCION
---------- ---------------------- ------------- ------------- ---------- -------------------
-25200001  Ana Torres Quispe	 presente      19:19:51 	   1505 activa
-25200002  Luis Ramirez Huaman	 tardanza      19:19:51 	   1507 activa
-25200003  Maria Gomez Flores	 falta					activa
-25200004  Diego Castillo Rojas	 sin_registro				inhabilitado
-25200005  Sofia Herrera Diaz	 falta					inhabilitado
-25200006  Pedro Vargas Leon	 falta					activa
+CODIGO	  NOMBRE		     ASISTENCIA    HORA_REGISTRO  ID_ACCESO ESTADO_INSCRIPCION
+--------- -------------------------- ------------- ------------- ---------- -------------------
+25200001  Ana Torres Quispe	     presente	   15:56:34	       1516 activa
+25200002  Luis Ramirez Huaman	     tardanza	   15:56:34	       1518 activa
+25200003  Maria Gomez Flores	     falta				    activa
+25200004  Diego Castillo Rojas	     sin_registro			    inhabilitado
+25200005  Sofia Herrera Diaz	     falta				    inhabilitado
+25200006  Pedro Vargas Leon	     falta				    activa
 
 =====================================================================
 3. r_alumnos_en_riesgo(NULL): todas las secciones (limite = LIMITE_FALTAS_PCT)
 =====================================================================
 
-ID_SECCION CURSO    GRUPO CODIGO    NOMBRE		       FALTAS SESIONES_CERRADAS PCT_FALTAS LIMITE_PCT NIVEL
----------- -------- ----- --------- ---------------------- ---------- ----------------- ---------- ---------- -------------
-	 1 SIS301   A	  25200004  Diego Castillo Rojas	    3		      8       37.5	   30 inhabilitado
-	 1 SIS301   A	  25200005  Sofia Herrera Diaz		    3		      8       37.5	   30 inhabilitado
-	 1 SIS301   A	  25200003  Maria Gomez Flores		    2		      8 	25	   30 en_riesgo
-	 1 SIS301   A	  25200006  Pedro Vargas Leon		    2		      8 	25	   30 en_riesgo
-	 3 SIS201   A	  25200005  Sofia Herrera Diaz		    1		      6       16.7	   30 en_riesgo
-	 2 SIS302   A	  25200007  Valeria Ortiz Mejia 	    1		      6       16.7	   30 en_riesgo
-	 3 SIS201   A	  25200010  Miguel Navarro Pinto	    1		      6       16.7	   30 en_riesgo
-	 4 CC101    B	  25200010  Miguel Navarro Pinto	    1		      6       16.7	   30 en_riesgo
+ID_SECCION CURSO    GRUPO CODIGO    NOMBRE			   FALTAS SESIONES_CERRADAS PCT_FALTAS LIMITE_PCT NIVEL
+---------- -------- ----- --------- -------------------------- ---------- ----------------- ---------- ---------- -------------
+	 1 SIS301   A	  25200004  Diego Castillo Rojas		3		  8	  37.5	       30 inhabilitado
+	 1 SIS301   A	  25200005  Sofia Herrera Diaz			3		  8	  37.5	       30 inhabilitado
+	 1 SIS301   A	  25200003  Maria Gomez Flores			2		  8	    25	       30 en_riesgo
+	 1 SIS301   A	  25200006  Pedro Vargas Leon			2		  8	    25	       30 en_riesgo
+	 3 SIS201   A	  25200005  Sofia Herrera Diaz			1		  6	  16.7	       30 en_riesgo
+	 2 SIS302   A	  25200007  Valeria Ortiz Mejia 		1		  6	  16.7	       30 en_riesgo
+	 3 SIS201   A	  25200010  Miguel Navarro Pinto		1		  6	  16.7	       30 en_riesgo
+	 4 CC101    B	  25200010  Miguel Navarro Pinto		1		  6	  16.7	       30 en_riesgo
 
 === r_alumnos_en_riesgo(1): solo la seccion 1
 
-ID_SECCION CURSO    GRUPO CODIGO    NOMBRE		       FALTAS SESIONES_CERRADAS PCT_FALTAS LIMITE_PCT NIVEL
----------- -------- ----- --------- ---------------------- ---------- ----------------- ---------- ---------- -------------
-	 1 SIS301   A	  25200004  Diego Castillo Rojas	    3		      8       37.5	   30 inhabilitado
-	 1 SIS301   A	  25200005  Sofia Herrera Diaz		    3		      8       37.5	   30 inhabilitado
-	 1 SIS301   A	  25200003  Maria Gomez Flores		    2		      8 	25	   30 en_riesgo
-	 1 SIS301   A	  25200006  Pedro Vargas Leon		    2		      8 	25	   30 en_riesgo
+ID_SECCION CURSO    GRUPO CODIGO    NOMBRE			   FALTAS SESIONES_CERRADAS PCT_FALTAS LIMITE_PCT NIVEL
+---------- -------- ----- --------- -------------------------- ---------- ----------------- ---------- ---------- -------------
+	 1 SIS301   A	  25200004  Diego Castillo Rojas		3		  8	  37.5	       30 inhabilitado
+	 1 SIS301   A	  25200005  Sofia Herrera Diaz			3		  8	  37.5	       30 inhabilitado
+	 1 SIS301   A	  25200003  Maria Gomez Flores			2		  8	    25	       30 en_riesgo
+	 1 SIS301   A	  25200006  Pedro Vargas Leon			2		  8	    25	       30 en_riesgo
 
 =====================================================================
-4. r_ranking_tardanzas: ultimos 60 dias
+4. r_ranking_tardanzas: ultimos 60 dias (dias de la hora local)
 =====================================================================
 
-    PUESTO CODIGO    NOMBRE		     TARDANZAS	ASISTIDAS PCT_TARDANZA
----------- --------- ---------------------- ---------- ---------- ------------
-	 1 25200003  Maria Gomez Flores 	     3	       12	    25
-	 1 25200004  Diego Castillo Rojas	     3		9	  33.3
-	 1 25200006  Pedro Vargas Leon		     3	       12	    25
-	 4 25200005  Sofia Herrera Diaz 	     2	       10	    20
-	 4 25200007  Valeria Ortiz Mejia	     2	       11	  18.2
-	 4 25200008  Andres Silva Cruz		     2	       12	  16.7
-	 4 25200009  Camila Rojas Prado 	     2		6	  33.3
-	 4 25200010  Miguel Navarro Pinto	     2	       10	    20
-	 9 25200001  Ana Torres Quispe		     1	       13	   7.7
-	 9 25200002  Luis Ramirez Huaman	     1	       13	   7.7
+    PUESTO CODIGO    NOMBRE			 TARDANZAS  ASISTIDAS PCT_TARDANZA
+---------- --------- -------------------------- ---------- ---------- ------------
+	 1 25200003  Maria Gomez Flores 		 3	   12		25
+	 1 25200004  Diego Castillo Rojas		 3	    9	      33.3
+	 1 25200006  Pedro Vargas Leon			 3	   12		25
+	 4 25200005  Sofia Herrera Diaz 		 2	   10		20
+	 4 25200007  Valeria Ortiz Mejia		 2	   11	      18.2
+	 4 25200008  Andres Silva Cruz			 2	   12	      16.7
+	 4 25200009  Camila Rojas Prado 		 2	    6	      33.3
+	 4 25200010  Miguel Navarro Pinto		 2	   10		20
+	 9 25200001  Ana Torres Quispe			 1	   13	       7.7
+	 9 25200002  Luis Ramirez Huaman		 1	   13	       7.7
 
 === r_ranking_tardanzas(NULL, NULL): sin limites de fecha
 
-    PUESTO CODIGO    NOMBRE		     TARDANZAS	ASISTIDAS PCT_TARDANZA
----------- --------- ---------------------- ---------- ---------- ------------
-	 1 25200003  Maria Gomez Flores 	     3	       12	    25
-	 1 25200004  Diego Castillo Rojas	     3		9	  33.3
-	 1 25200006  Pedro Vargas Leon		     3	       12	    25
-	 4 25200005  Sofia Herrera Diaz 	     2	       10	    20
-	 4 25200007  Valeria Ortiz Mejia	     2	       11	  18.2
-	 4 25200008  Andres Silva Cruz		     2	       12	  16.7
-	 4 25200009  Camila Rojas Prado 	     2		6	  33.3
-	 4 25200010  Miguel Navarro Pinto	     2	       10	    20
-	 9 25200001  Ana Torres Quispe		     1	       13	   7.7
-	 9 25200002  Luis Ramirez Huaman	     1	       13	   7.7
+    PUESTO CODIGO    NOMBRE			 TARDANZAS  ASISTIDAS PCT_TARDANZA
+---------- --------- -------------------------- ---------- ---------- ------------
+	 1 25200003  Maria Gomez Flores 		 3	   12		25
+	 1 25200004  Diego Castillo Rojas		 3	    9	      33.3
+	 1 25200006  Pedro Vargas Leon			 3	   12		25
+	 4 25200005  Sofia Herrera Diaz 		 2	   10		20
+	 4 25200007  Valeria Ortiz Mejia		 2	   11	      18.2
+	 4 25200008  Andres Silva Cruz			 2	   12	      16.7
+	 4 25200009  Camila Rojas Prado 		 2	    6	      33.3
+	 4 25200010  Miguel Navarro Pinto		 2	   10		20
+	 9 25200001  Ana Torres Quispe			 1	   13	       7.7
+	 9 25200002  Luis Ramirez Huaman		 1	   13	       7.7
 
 =====================================================================
 5. r_accesos_denegados: agrupado por motivo y zona (subtotales y total)
@@ -97,45 +97,45 @@ ID_SECCION CURSO    GRUPO CODIGO    NOMBRE		       FALTAS SESIONES_CERRADAS PCT_
 
 MOTIVO					     ZONA			       TOTAL CODIGOS_DISTINTOS PRIMERO		ULTIMO
 -------------------------------------------- ---------------------------- ---------- ----------------- ---------------- ----------------
-codigo_inexistente			     Puerta Principal			   8		     2 2026-10-24 02:10 2026-10-27 19:19
-codigo_inexistente			     Subtotal del motivo		   8		     2 2026-10-24 02:10 2026-10-27 19:19
+codigo_inexistente			     Puerta Principal			   8		     2 2026-10-24 02:10 2026-10-27 15:56
+codigo_inexistente			     Subtotal del motivo		   8		     2 2026-10-24 02:10 2026-10-27 15:56
 fuera_de_horario			     Biblioteca Central 		   1		     1 2026-10-25 21:15 2026-10-25 21:15
-fuera_de_horario			     Puerta Principal			   1		     1 2026-10-27 19:19 2026-10-27 19:19
-fuera_de_horario			     Subtotal del motivo		   2		     2 2026-10-25 21:15 2026-10-27 19:19
-persona_inactiva			     Puerta Principal			   3		     2 2026-10-21 09:40 2026-10-27 19:19
-persona_inactiva			     Subtotal del motivo		   3		     2 2026-10-21 09:40 2026-10-27 19:19
-persona_restringida			     Puerta Principal			   3		     2 2026-10-26 08:20 2026-10-27 19:19
-persona_restringida			     Subtotal del motivo		   3		     2 2026-10-26 08:20 2026-10-27 19:19
-rostro_no_coincide			     Puerta Principal			   2		     1 2026-10-23 08:05 2026-10-27 19:19
-rostro_no_coincide			     Subtotal del motivo		   2		     1 2026-10-23 08:05 2026-10-27 19:19
-sin_pase_vigente			     Aula A-101 			   2		     2 2026-10-27 19:19 2026-10-27 19:19
-sin_pase_vigente			     Puerta Principal			   2		     1 2026-10-25 10:05 2026-10-27 19:19
-sin_pase_vigente			     Subtotal del motivo		   4		     2 2026-10-25 10:05 2026-10-27 19:19
-zona_no_autorizada			     Oficina de Administracion		   1		     1 2026-10-27 19:19 2026-10-27 19:19
-zona_no_autorizada			     Subtotal del motivo		   1		     1 2026-10-27 19:19 2026-10-27 19:19
-TOTAL GENERAL				     -					  23		    10 2026-10-21 09:40 2026-10-27 19:19
+fuera_de_horario			     Puerta Principal			   1		     1 2026-10-27 15:56 2026-10-27 15:56
+fuera_de_horario			     Subtotal del motivo		   2		     2 2026-10-25 21:15 2026-10-27 15:56
+persona_inactiva			     Puerta Principal			   3		     2 2026-10-21 09:40 2026-10-27 15:56
+persona_inactiva			     Subtotal del motivo		   3		     2 2026-10-21 09:40 2026-10-27 15:56
+persona_restringida			     Puerta Principal			   3		     2 2026-10-26 08:20 2026-10-27 15:56
+persona_restringida			     Subtotal del motivo		   3		     2 2026-10-26 08:20 2026-10-27 15:56
+rostro_no_coincide			     Puerta Principal			   2		     1 2026-10-23 08:05 2026-10-27 15:56
+rostro_no_coincide			     Subtotal del motivo		   2		     1 2026-10-23 08:05 2026-10-27 15:56
+sin_pase_vigente			     Aula A-101 			   2		     2 2026-10-27 15:56 2026-10-27 15:56
+sin_pase_vigente			     Puerta Principal			   2		     1 2026-10-25 10:05 2026-10-27 15:56
+sin_pase_vigente			     Subtotal del motivo		   4		     2 2026-10-25 10:05 2026-10-27 15:56
+zona_no_autorizada			     Oficina de Administracion		   1		     1 2026-10-27 15:56 2026-10-27 15:56
+zona_no_autorizada			     Subtotal del motivo		   1		     1 2026-10-27 15:56 2026-10-27 15:56
+TOTAL GENERAL				     -					  23		    10 2026-10-21 09:40 2026-10-27 15:56
 
 === r_accesos_denegados de los ultimos 3 dias (hoy incluido)
 
 MOTIVO					     ZONA			       TOTAL CODIGOS_DISTINTOS PRIMERO		ULTIMO
 -------------------------------------------- ---------------------------- ---------- ----------------- ---------------- ----------------
-codigo_inexistente			     Puerta Principal			   8		     2 2026-10-24 02:10 2026-10-27 19:19
-codigo_inexistente			     Subtotal del motivo		   8		     2 2026-10-24 02:10 2026-10-27 19:19
+codigo_inexistente			     Puerta Principal			   8		     2 2026-10-24 02:10 2026-10-27 15:56
+codigo_inexistente			     Subtotal del motivo		   8		     2 2026-10-24 02:10 2026-10-27 15:56
 fuera_de_horario			     Biblioteca Central 		   1		     1 2026-10-25 21:15 2026-10-25 21:15
-fuera_de_horario			     Puerta Principal			   1		     1 2026-10-27 19:19 2026-10-27 19:19
-fuera_de_horario			     Subtotal del motivo		   2		     2 2026-10-25 21:15 2026-10-27 19:19
-persona_inactiva			     Puerta Principal			   2		     2 2026-10-27 19:19 2026-10-27 19:19
-persona_inactiva			     Subtotal del motivo		   2		     2 2026-10-27 19:19 2026-10-27 19:19
-persona_restringida			     Puerta Principal			   3		     2 2026-10-26 08:20 2026-10-27 19:19
-persona_restringida			     Subtotal del motivo		   3		     2 2026-10-26 08:20 2026-10-27 19:19
-rostro_no_coincide			     Puerta Principal			   1		     1 2026-10-27 19:19 2026-10-27 19:19
-rostro_no_coincide			     Subtotal del motivo		   1		     1 2026-10-27 19:19 2026-10-27 19:19
-sin_pase_vigente			     Aula A-101 			   2		     2 2026-10-27 19:19 2026-10-27 19:19
-sin_pase_vigente			     Puerta Principal			   2		     1 2026-10-25 10:05 2026-10-27 19:19
-sin_pase_vigente			     Subtotal del motivo		   4		     2 2026-10-25 10:05 2026-10-27 19:19
-zona_no_autorizada			     Oficina de Administracion		   1		     1 2026-10-27 19:19 2026-10-27 19:19
-zona_no_autorizada			     Subtotal del motivo		   1		     1 2026-10-27 19:19 2026-10-27 19:19
-TOTAL GENERAL				     -					  21		    10 2026-10-24 02:10 2026-10-27 19:19
+fuera_de_horario			     Puerta Principal			   1		     1 2026-10-27 15:56 2026-10-27 15:56
+fuera_de_horario			     Subtotal del motivo		   2		     2 2026-10-25 21:15 2026-10-27 15:56
+persona_inactiva			     Puerta Principal			   2		     2 2026-10-27 15:56 2026-10-27 15:56
+persona_inactiva			     Subtotal del motivo		   2		     2 2026-10-27 15:56 2026-10-27 15:56
+persona_restringida			     Puerta Principal			   3		     2 2026-10-26 08:20 2026-10-27 15:56
+persona_restringida			     Subtotal del motivo		   3		     2 2026-10-26 08:20 2026-10-27 15:56
+rostro_no_coincide			     Puerta Principal			   1		     1 2026-10-27 15:56 2026-10-27 15:56
+rostro_no_coincide			     Subtotal del motivo		   1		     1 2026-10-27 15:56 2026-10-27 15:56
+sin_pase_vigente			     Aula A-101 			   2		     2 2026-10-27 15:56 2026-10-27 15:56
+sin_pase_vigente			     Puerta Principal			   2		     1 2026-10-25 10:05 2026-10-27 15:56
+sin_pase_vigente			     Subtotal del motivo		   4		     2 2026-10-25 10:05 2026-10-27 15:56
+zona_no_autorizada			     Oficina de Administracion		   1		     1 2026-10-27 15:56 2026-10-27 15:56
+zona_no_autorizada			     Subtotal del motivo		   1		     1 2026-10-27 15:56 2026-10-27 15:56
+TOTAL GENERAL				     -					  21		    10 2026-10-24 02:10 2026-10-27 15:56
 
 =====================================================================
 6. r_incidencias
@@ -146,11 +146,11 @@ ID_INCIDENCIA FECHA	       ZONA			    TIPO		       GRAVEDAD  ESTADO        ORIGE
 ------------- ---------------- ---------------------------- -------------------------- --------- ------------- ---------- -------------- ---------------------- ----------
 DESCRIPCION
 ------------------------------------------------------------
-	 1007 2026-10-27 19:19 Puerta Principal 	    persona_restringida        alta	 abierta       sistema	  25200012	 Persona Modificada	      1514
+	 1007 2026-10-27 15:56 Puerta Principal 	    persona_restringida        alta	 abierta       sistema	  25200012	 Persona Modificada	      1525
 Intento de ingreso de persona con restriccion vigente:
 25200012
 
-	 1005 2026-10-27 19:19 Puerta Principal 	    persona_restringida        alta	 abierta       sistema	  25200010	 Miguel Navarro Pinto	      1497
+	 1005 2026-10-27 15:56 Puerta Principal 	    persona_restringida        alta	 abierta       sistema	  25200010	 Miguel Navarro Pinto	      1508
 Intento de ingreso de persona con restriccion vigente:
 25200010
 
@@ -158,12 +158,12 @@ Intento de ingreso de persona con restriccion vigente:
 Intento de ingreso de persona con restriccion vigente:
 25200010
 
-	 1008 2026-10-27 19:19 Laboratorio de Computo 1     puerta_laboratorio_abierta media	 resuelta      vigilante
+	 1008 2026-10-27 15:56 Laboratorio de Computo 1     puerta_laboratorio_abierta media	 resuelta      vigilante
 Puerta del laboratorio abierta fuera de horario |
-en_revision 2026-10-27 19:19: Se avisa al encargado |
-resuelta 2026-10-27 19:19: Puerta cerrada con llave
+en_revision 2026-10-27 20:56: Se avisa al encargado |
+resuelta 2026-10-27 20:56: Puerta cerrada con llave
 
-	 1006 2026-10-27 19:19 Puerta Principal 	    intentos_reiterados        media	 abierta       sistema						      1512
+	 1006 2026-10-27 15:56 Puerta Principal 	    intentos_reiterados        media	 abierta       sistema						      1523
 Intentos denegados reiterados (minimo 3 en 10 min).
 codigo=[12345678]
 
@@ -189,11 +189,11 @@ ID_INCIDENCIA FECHA	       ZONA			    TIPO		       GRAVEDAD  ESTADO        ORIGE
 ------------- ---------------- ---------------------------- -------------------------- --------- ------------- ---------- -------------- ---------------------- ----------
 DESCRIPCION
 ------------------------------------------------------------
-	 1007 2026-10-27 19:19 Puerta Principal 	    persona_restringida        alta	 abierta       sistema	  25200012	 Persona Modificada	      1514
+	 1007 2026-10-27 15:56 Puerta Principal 	    persona_restringida        alta	 abierta       sistema	  25200012	 Persona Modificada	      1525
 Intento de ingreso de persona con restriccion vigente:
 25200012
 
-	 1005 2026-10-27 19:19 Puerta Principal 	    persona_restringida        alta	 abierta       sistema	  25200010	 Miguel Navarro Pinto	      1497
+	 1005 2026-10-27 15:56 Puerta Principal 	    persona_restringida        alta	 abierta       sistema	  25200010	 Miguel Navarro Pinto	      1508
 Intento de ingreso de persona con restriccion vigente:
 25200010
 
@@ -208,7 +208,7 @@ Intento de ingreso de persona con restriccion vigente:
 
    ID_PASE CODIGO_VISITANTE VISITANTE		 ANFITRION	      ZONA_DESTINO	       DESDE		HASTA		 HORAS_RESTANTES MOTIVO
 ---------- ---------------- -------------------- -------------------- ------------------------ ---------------- ---------------- --------------- --------------------------------------------
-      1000 99000001	    Elena Paz Cardenas	 Carlos Mendoza Rios  Biblioteca Central       2026-10-27 18:19 2026-10-28 19:19	    23.9 Consulta bibliografica para investigacion
+      1000 99000001	    Elena Paz Cardenas	 Carlos Mendoza Rios  Biblioteca Central       2026-10-27 14:56 2026-10-28 15:56	      24 Consulta bibliografica para investigacion
 
 =====================================================================
 8. r_uso_aulas_vs_sesiones
@@ -261,7 +261,7 @@ HORA   PERMITIDOS  DENEGADOS	  TOTAL   ENTRADAS    SALIDAS PERSONAS_DISTINTAS
 22:00		0	   0	      0 	 0	    0		       0
 23:00		0	   0	      0 	 0	    0		       0
 
-=== hoy, todas las zonas (hora del servidor)
+=== hoy, todas las zonas (horas locales)
 
 HORA   PERMITIDOS  DENEGADOS	  TOTAL   ENTRADAS    SALIDAS PERSONAS_DISTINTAS
 ------ ---------- ---------- ---------- ---------- ---------- ------------------
@@ -272,28 +272,126 @@ HORA   PERMITIDOS  DENEGADOS	  TOTAL   ENTRADAS    SALIDAS PERSONAS_DISTINTAS
 04:00		0	   0	      0 	 0	    0		       0
 05:00		0	   0	      0 	 0	    0		       0
 06:00		0	   0	      0 	 0	    0		       0
-07:00		0	   0	      0 	 0	    0		       0
-08:00		0	   0	      0 	 0	    0		       0
+07:00		5	   0	      5 	 5	    0		       5
+08:00		6	   0	      6 	 6	    0		       6
 09:00		0	   0	      0 	 0	    0		       0
 10:00		0	   0	      0 	 0	    0		       0
 11:00		0	   0	      0 	 0	    0		       0
 12:00		0	   0	      0 	 0	    0		       0
 13:00		0	   0	      0 	 0	    0		       0
 14:00		0	   0	      0 	 0	    0		       0
-15:00		0	   0	      0 	 0	    0		       0
+15:00	       10	  15	     25 	 2	    0		      10
 16:00		0	   0	      0 	 0	    0		       0
 17:00		0	   0	      0 	 0	    0		       0
 18:00		0	   0	      0 	 0	    0		       0
-19:00	       10	  15	     25 	 2	    0		      10
+19:00		0	   0	      0 	 0	    0		       0
 20:00		0	   0	      0 	 0	    0		       0
 21:00		0	   0	      0 	 0	    0		       0
 22:00		0	   0	      0 	 0	    0		       0
 23:00		0	   0	      0 	 0	    0		       0
 
 =====================================================================
-10. ERRORES ESPERADOS
+10. PROCEDIMIENTOS DE CONSULTA DEL PANEL WEB
 =====================================================================
-10.1 seccion inexistente    -> ORA-20002: La seccion 999 no existe
-10.2 estado no valido	    -> ORA-20001: Estado no valido: cerrada
-10.3 rango de fechas al reves -> ORA-20001: La fecha desde no puede ser posterior a la fecha hasta
-10.4 zona inexistente	    -> ORA-20002: La zona 99 no existe
+=== r_resumen_hoy: contadores del dia (hora local)
+
+FECHA_HORA_LOCAL ACCESOS_HOY PERMITIDOS_HOY DENEGADOS_HOY PERSONAS_HOY INCIDENCIAS_ABIERTAS INCIDENCIAS_ALTAS SESIONES_EN_CURSO PASES_VIGENTES RESTRICCIONES_VIGENTES
+---------------- ----------- -------------- ------------- ------------ -------------------- ----------------- ----------------- -------------- ----------------------
+2026-10-27 15:56	  36		 21	       15	    14			  5		    3		      0 	     1			    1
+
+=== r_accesos_bitacora: ultimos 5 accesos de hoy
+
+ ID_ACCESO FECHA_HORA	       CODIGO	 PERSONA		TIPO_PERSONA   ZONA			    PUNTO	     RESULTADO	MOTIVO					     METODO	 CONFIANZA
+---------- ------------------- --------- ---------------------- -------------- ---------------------------- ---------------- ---------- -------------------------------------------- ---------- ----------
+      1529 2026-10-27 15:56:35 25200012  Persona Modificada	estudiante     Puerta Principal 	    Puerta ingreso   denegado	persona_inactiva			     simulado		22
+      1528 2026-10-27 15:56:35 99000002  Hugo Villanueva Rey	visitante      Aula A-101		    Aula A-101	     denegado	sin_pase_vigente			     simulado		26
+      1527 2026-10-27 15:56:35 99000002  Hugo Villanueva Rey	visitante      Aula A-101		    Aula A-101	     permitido						     simulado		26
+      1526 2026-10-27 15:56:34 25200012  Persona Modificada	estudiante     Puerta Principal 	    Puerta ingreso   permitido						     simulado		22
+      1525 2026-10-27 15:56:34 25200012  Persona Modificada	estudiante     Puerta Principal 	    Puerta ingreso   denegado	persona_restringida			     simulado		22
+
+=== r_accesos_bitacora: denegados en la puerta (zona 1) de los ultimos 7 dias, maximo 6
+
+ ID_ACCESO FECHA_HORA	       CODIGO	 PERSONA		TIPO_PERSONA   ZONA			    PUNTO	     RESULTADO	MOTIVO					     METODO	 CONFIANZA
+---------- ------------------- --------- ---------------------- -------------- ---------------------------- ---------------- ---------- -------------------------------------------- ---------- ----------
+      1529 2026-10-27 15:56:35 25200012  Persona Modificada	estudiante     Puerta Principal 	    Puerta ingreso   denegado	persona_inactiva			     simulado		22
+      1525 2026-10-27 15:56:34 25200012  Persona Modificada	estudiante     Puerta Principal 	    Puerta ingreso   denegado	persona_restringida			     simulado		22
+      1524 2026-10-27 15:56:34 12345678  (codigo no registrado) 	       Puerta Principal 	    Puerta ingreso   denegado	codigo_inexistente			     simulado
+      1523 2026-10-27 15:56:34 12345678  (codigo no registrado) 	       Puerta Principal 	    Puerta ingreso   denegado	codigo_inexistente			     simulado
+      1522 2026-10-27 15:56:34 12345678  (codigo no registrado) 	       Puerta Principal 	    Puerta ingreso   denegado	codigo_inexistente			     simulado
+      1521 2026-10-27 15:56:34 12345678  (codigo no registrado) 	       Puerta Principal 	    Puerta ingreso   denegado	codigo_inexistente			     simulado
+
+=== r_accesos_bitacora: busqueda por texto 'torres'
+
+ ID_ACCESO FECHA_HORA	       CODIGO	 PERSONA		TIPO_PERSONA   ZONA			    PUNTO	     RESULTADO	MOTIVO					     METODO	 CONFIANZA
+---------- ------------------- --------- ---------------------- -------------- ---------------------------- ---------------- ---------- -------------------------------------------- ---------- ----------
+      1519 2026-10-27 15:56:34 25200001  Ana Torres Quispe	estudiante     Aula A-101		    Aula A-101	     permitido						     simulado	      24.5
+      1517 2026-10-27 15:56:34 25200001  Ana Torres Quispe	estudiante     Aula A-101		    Aula A-101	     permitido						     simulado	      24.5
+      1516 2026-10-27 15:56:34 25200001  Ana Torres Quispe	estudiante     Aula A-101		    Aula A-101	     permitido						     simulado	      24.5
+      1510 2026-10-27 15:56:34 25200001  Ana Torres Quispe	estudiante     Puerta Principal 	    Puerta ingreso   denegado	fuera_de_horario			     simulado		20
+
+=== r_zonas
+
+   ID_ZONA NOMBRE		      TIPO			      AFORO
+---------- -------------------------- -------------------------- ----------
+	 1 Puerta Principal	      puerta
+	 2 Biblioteca Central	      biblioteca			120
+	 3 Aula A-101		      aula				 40
+	 4 Aula A-102		      aula				 40
+	 5 Laboratorio de Computo 1   laboratorio			 30
+	 6 Oficina de Administracion  administrativa			 15
+
+=== r_escuelas
+
+ID_ESCUELA NOMBRE		      FACULTAD
+---------- -------------------------- --------------------------------------------------
+	 1 Ingenieria de Sistemas     Facultad de Ingenieria de Sistemas e Informatica
+	 2 Ingenieria de Software     Facultad de Ingenieria de Sistemas e Informatica
+	 3 Ciencias de la Computacion Facultad de Ciencias Matematicas
+
+=== r_secciones
+
+ID_SECCION CURSO    NOMBRE_CURSO		       GRUPO PERIODO	DOCENTE 	       AULA	       INSCRITOS SESIONES_CERRADAS SESIONES_ABIERTAS
+---------- -------- ---------------------------------- ----- ---------- ---------------------- -------------- ---------- ----------------- -----------------
+	 4 CC101    Programacion I		       B     2026-II	Carlos Mendoza Rios    Aula A-101	       4		 6		   0
+	 3 SIS201   Estructuras de Datos	       A     2026-II	Jorge Paredes Vega     Laboratorio de	       5		 6		   0
+												Computo 1
+
+	 1 SIS301   Administracion de Base de Datos    A     2026-II	Carlos Mendoza Rios    Aula A-101	       6		 8		   0
+	 2 SIS302   Ingenieria de Software	       A     2026-II	Lucia Fernandez Soto   Aula A-102	       4		 6		   0
+
+=== r_sesiones(1): sesiones de la seccion 1, la mas reciente primero
+
+ ID_SESION INICIO	    FIN 	     ESTADO	    PRESENTES  TARDANZAS     FALTAS
+---------- ---------------- ---------------- ------------- ---------- ---------- ----------
+       900 2026-10-27 15:36 2026-10-27 17:06 cerrada		    1	       1	  3
+       901 2026-10-27 12:56 2026-10-27 14:26 cerrada		    0	       0	  5
+	 6 2026-10-20 08:00 2026-10-20 09:30 cerrada		    3	       3	  0
+	 5 2026-10-13 08:00 2026-10-13 09:30 cerrada		    4	       1	  1
+	 4 2026-10-06 08:00 2026-10-06 09:30 cerrada		    5	       0	  1
+	 3 2026-09-29 08:00 2026-09-29 09:30 cerrada		    5	       0	  1
+	 2 2026-09-22 08:00 2026-09-22 09:30 cerrada		    5	       0	  1
+	 1 2026-09-15 08:00 2026-09-15 09:30 cerrada		    5	       1	  0
+
+=== r_restricciones: restricciones vigentes
+
+ID_RESTRICCION CODIGO	 NOMBRE 		    MOTIVO					 DESDE		  HASTA
+-------------- --------- -------------------------- -------------------------------------------- ---------------- ----------------
+	  1000 25200010  Miguel Navarro Pinto	    Sancion disciplinaria pendiente de		 2026-10-22 00:00 indefinida
+						    resolucion
+
+
+=== p_obtener_desfase: minutos servidor - local
+
+DESFASE_MINUTOS DESFASE_HORAS HORA_SERVIDOR    HORA_LOCAL
+--------------- ------------- ---------------- ----------------
+	    300 	    5 2026-10-27 20:56 2026-10-27 15:56
+
+=====================================================================
+11. ERRORES ESPERADOS
+=====================================================================
+11.1 seccion inexistente    -> ORA-20002: La seccion 999 no existe
+11.2 estado no valido	    -> ORA-20001: Estado no valido: cerrada
+11.3 rango de fechas al reves -> ORA-20001: La fecha desde no puede ser posterior a la fecha hasta
+11.4 zona inexistente	    -> ORA-20002: La zona 99 no existe
+11.5 seccion inexistente (sesiones) -> ORA-20002: La seccion 999 no existe
+11.6 resultado no valido    -> ORA-20001: Resultado no valido: quizas

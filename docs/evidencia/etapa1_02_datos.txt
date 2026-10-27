@@ -9,7 +9,7 @@ estudiantes	       10
 docentes		3
 zonas			6
 puntos_control		7
-accesos 	      494
+accesos 	      505
 cursos			4
 secciones		4
 inscripciones	       19

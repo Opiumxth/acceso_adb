@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tabla, badge, boton_post %}
+{% block titulo %}Sesión {{ sesion.id_sesion }}{% endblock %}
+{% block contenido %}
+<h1 class="mt-4">Sesión {{ sesion.id_sesion }} {{ badge(sesion.estado) }}</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item"><a href="{{ url_for('asistencia') }}">Asistencia</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('asistencia_seccion', id_seccion=seccion.id_seccion) }}">{{ seccion.curso }}-{{ seccion.grupo }}</a></li>
+    <li class="breadcrumb-item active">{{ sesion.inicio }} a {{ sesion.fin }} (hora local)</li>
+</ol>
+
+<div class="row mb-4">
+    <div class="col-md-3"><div class="card text-center"><div class="card-body"><div class="estadistica-grande text-success">{{ sesion.presentes }}</div>Presentes</div></div></div>
+    <div class="col-md-3"><div class="card text-center"><div class="card-body"><div class="estadistica-grande text-warning">{{ sesion.tardanzas }}</div>Tardanzas</div></div></div>
+    <div class="col-md-3"><div class="card text-center"><div class="card-body"><div class="estadistica-grande text-danger">{{ sesion.faltas }}</div>Faltas</div></div></div>
+    <div class="col-md-3 d-flex align-items-center justify-content-center">
+        {% if puede('sesiones_gestionar') and sesion.estado != 'cerrada' %}
+        {{ boton_post(url_for('sesion_cerrar', id_seccion=seccion.id_seccion, id_sesion=sesion.id_sesion),
+                      'Cerrar sesión', 'btn-danger', 'fa-lock',
+                      'Cerrar la sesión ' ~ sesion.id_sesion ~ '? Se marcará falta a los inscritos sin asistencia y esto no se puede deshacer.') }}
+        {% elif sesion.estado == 'cerrada' %}
+        <span class="text-muted"><i class="fas fa-lock"></i> Sesión cerrada</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-user-check me-1"></i> Asistencia de cada inscrito</div>
+    <div class="card-body">
+        {{ tabla(detalle, ['codigo', 'nombre', 'asistencia', 'hora_registro', 'id_acceso', 'estado_inscripcion'],
+                 badges=('asistencia', 'estado_inscripcion')) }}
+    </div>
+</div>
+{% endblock %}

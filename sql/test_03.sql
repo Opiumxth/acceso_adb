@@ -48,11 +48,14 @@ variable ipase number
 variable ii   number
 variable acc  varchar2(20)
 variable c    refcursor
+variable t0   varchar2(30)
 
 prompt
 prompt =====================================================================
 prompt 0. PREPARACION
 prompt =====================================================================
+-- instante de inicio: el resumen final cuenta solo lo generado por esta prueba
+exec :t0 := to_char(systimestamp, 'YYYY-MM-DD HH24:MI:SS')
 select to_char(sysdate, 'YYYY-MM-DD HH24:MI:SS') as hora_servidor,
        to_char(systimestamp at time zone 'America/Lima', 'HH24:MI') as hora_lima
   from dual;
@@ -419,17 +422,18 @@ select p.tipo_persona, z.nombre as zona, p.hora_desde, p.hora_hasta
  where p.tipo_persona in ('estudiante', 'docente')
  order by p.tipo_persona, z.id_zona;
 
-prompt -- accesos de esta prueba (hoy, metodo simulado), por resultado y motivo
+prompt -- accesos generados por esta prueba (metodo simulado), por resultado y motivo
 select resultado, nvl(motivo, '-') as motivo, count(*) as total
   from accesos
- where metodo = 'simulado' and fecha_hora >= trunc(sysdate)
+ where metodo = 'simulado'
+   and fecha_hora >= to_timestamp(:t0, 'YYYY-MM-DD HH24:MI:SS')
  group by resultado, motivo
  order by resultado, motivo;
 
-prompt -- incidencias creadas hoy
+prompt -- incidencias creadas por esta prueba
 select id_incidencia, tipo, gravedad, estado, origen
   from incidencias
- where fecha_hora >= trunc(sysdate)
+ where fecha_hora >= to_timestamp(:t0, 'YYYY-MM-DD HH24:MI:SS')
  order by id_incidencia;
 
 commit;

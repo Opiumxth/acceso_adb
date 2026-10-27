@@ -26,6 +26,7 @@ import oracledb
 import qrcode
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import acceder_rostro  # noqa: E402
 import biometria  # noqa: E402
@@ -35,6 +36,7 @@ import escanear_qr  # noqa: E402
 import punto_acceso  # noqa: E402
 import registro  # noqa: E402
 import repositorio  # noqa: E402
+import utiles  # noqa: E402
 
 
 def _db_disponible():
@@ -276,10 +278,12 @@ class TestRepositorio(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.conn = db.get_connection("punto")
+        cls.incidencias_previas = utiles.maximo_incidencia()
 
     @classmethod
     def tearDownClass(cls):
         cls.conn.close()
+        utiles.cerrar_incidencias_nuevas(cls.incidencias_previas)
 
     def test_verificar_persona_existente(self):
         persona = repositorio.verificar_persona(self.conn, "25200001")
@@ -330,10 +334,12 @@ class TestProcesarLectura(unittest.TestCase):
     def setUpClass(cls):
         cls.conn = db.get_connection("punto")
         cls.umbral = repositorio.obtener_umbral_lbph(cls.conn)
+        cls.incidencias_previas = utiles.maximo_incidencia()
 
     @classmethod
     def tearDownClass(cls):
         cls.conn.close()
+        utiles.cerrar_incidencias_nuevas(cls.incidencias_previas)
 
     def _verificador(self, ok, confianza):
         llamadas = []

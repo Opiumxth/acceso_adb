@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tabla, badge %}
+{% block titulo %}Dashboard{% endblock %}
+{% block contenido %}
+{% set hoy = resumen.fecha_hora_local[:10] %}
+<h1 class="mt-4">Dashboard</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item active">Hoy, {{ resumen.fecha_hora_local }} (hora local)</li>
+</ol>
+
+<div class="row">
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-primary text-white mb-4">
+            <div class="card-body">
+                <div class="estadistica-grande">{{ resumen.accesos_hoy }}</div>
+                Accesos de hoy ({{ resumen.permitidos_hoy }} permitidos)
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" href="{{ url_for('accesos', filtrar=1, desde=hoy, hasta=hoy) }}">Ver bitácora</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-danger text-white mb-4">
+            <div class="card-body">
+                <div class="estadistica-grande">{{ resumen.denegados_hoy }}</div>
+                Accesos denegados hoy
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-white stretched-link" href="{{ url_for('accesos', filtrar=1, desde=hoy, hasta=hoy, resultado='denegado') }}">Ver denegados</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-warning text-dark mb-4">
+            <div class="card-body">
+                <div class="estadistica-grande">{{ resumen.incidencias_abiertas }}</div>
+                Incidencias abiertas ({{ resumen.incidencias_altas }} de gravedad alta)
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                <a class="small text-dark stretched-link" href="{{ url_for('incidencias', estado='abierta') }}">Ver incidencias</a>
+                <div class="small text-dark"><i class="fas fa-angle-right"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card bg-success text-white mb-4">
+            <div class="card-body">
+                <div class="estadistica-grande">{{ resumen.sesiones_en_curso }}</div>
+                Sesiones de clase en curso
+            </div>
+            <div class="card-footer d-flex align-items-center justify-content-between">
+                {% if puede('asistencia') %}
+                <a class="small text-white stretched-link" href="{{ url_for('asistencia') }}">Ver asistencia</a>
+                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                {% else %}
+                <span class="small text-white">Solo el administrador y los docentes ven la asistencia</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-chart-column me-1"></i> Flujo de hoy por hora (hora local)
+                <span class="float-end small">
+                    <span class="leyenda-ok"></span>permitidos
+                    <span class="leyenda-no ms-2"></span>denegados
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="flujo" role="img" aria-label="Accesos permitidos y denegados por hora del día de hoy">
+                    {% for h in flujo %}
+                    <div class="flujo-col" title="{{ h.hora }}: {{ h.permitidos }} permitidos, {{ h.denegados }} denegados">
+                        <div class="flujo-area">
+                            <div class="flujo-pila" style="height: {{ h.pct_total }}%">
+                                <div class="flujo-seg-no" style="height: {{ h.pct_no }}%"></div>
+                                <div class="flujo-seg-ok" style="height: {{ h.pct_ok }}%"></div>
+                            </div>
+                        </div>
+                        <div class="flujo-hora">{{ h.hora[:2] }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-4">
+        <div class="card mb-4">
+            <div class="card-header"><i class="fas fa-list-check me-1"></i> Estado actual</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between">Personas distintas que ingresaron hoy <strong>{{ resumen.personas_hoy }}</strong></li>
+                <li class="list-group-item d-flex justify-content-between">Pases de visitantes vigentes
+                    <a href="{{ url_for('pases') }}"><strong>{{ resumen.pases_vigentes }}</strong></a></li>
+                <li class="list-group-item d-flex justify-content-between">Restricciones vigentes
+                    <a href="{{ url_for('restricciones') }}"><strong>{{ resumen.restricciones_vigentes }}</strong></a></li>
+                <li class="list-group-item d-flex justify-content-between">Incidencias de gravedad alta abiertas <strong>{{ resumen.incidencias_altas }}</strong></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-xl-7">
+        <div class="card mb-4">
+            <div class="card-header"><i class="fas fa-ban me-1"></i> Últimos accesos denegados</div>
+            <div class="card-body">
+                {{ tabla(denegados, ['fecha_hora', 'codigo', 'persona', 'zona', 'motivo'], vacio='No hay accesos denegados.') }}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-5">
+        <div class="card mb-4">
+            <div class="card-header"><i class="fas fa-triangle-exclamation me-1"></i> Incidencias abiertas</div>
+            <div class="card-body">
+                {{ tabla(incidencias, ['fecha', 'tipo', 'gravedad', 'zona'], badges=('gravedad',), vacio='No hay incidencias abiertas.') }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

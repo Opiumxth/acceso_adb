@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from "_macros.html" import boton_post %}
+{% block titulo %}Restricciones{% endblock %}
+{% block contenido %}
+<h1 class="mt-4">Restricciones de ingreso</h1>
+<ol class="breadcrumb mb-4"><li class="breadcrumb-item active">Una persona con restricción vigente es denegada y se genera una incidencia de gravedad alta</li></ol>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-ban me-1"></i> Restricciones vigentes ({{ filas|length }})</div>
+    <div class="card-body">
+        {% if not filas %}
+        <p class="text-muted mb-0">No hay restricciones vigentes.</p>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr><th>N.º</th><th>Persona</th><th>Motivo</th><th>Desde</th><th>Hasta</th><th></th></tr>
+                </thead>
+                <tbody>
+                {% for r in filas %}
+                <tr>
+                    <td>{{ r.id_restriccion }}</td><td>{{ r.codigo|valor }} {{ r.nombre }}</td><td>{{ r.motivo }}</td>
+                    <td class="text-nowrap">{{ r.desde }}</td><td class="text-nowrap">{{ r.hasta }}</td>
+                    <td>{{ boton_post(url_for('restriccion_levantar', id_restriccion=r.id_restriccion), 'Levantar', 'btn-outline-success', 'fa-unlock',
+                                      'Levantar la restricción ' ~ r.id_restriccion ~ '?') }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-plus me-1"></i> Registrar una restricción</div>
+    <div class="card-body">
+        <form method="post" action="{{ url_for('restriccion_nueva') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label small mb-1" for="codigo_persona">Código de la persona</label>
+                    <input class="form-control" id="codigo_persona" name="codigo_persona" maxlength="8" inputmode="numeric" required>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small mb-1" for="motivo">Motivo</label>
+                    <input class="form-control" id="motivo" name="motivo" maxlength="200" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small mb-1" for="fecha_fin">Hasta (hora local; vacío = indefinida)</label>
+                    <input class="form-control" id="fecha_fin" name="fecha_fin" type="datetime-local">
+                </div>
+            </div>
+            <button class="btn btn-primary mt-3" type="submit"><i class="fas fa-floppy-disk"></i> Registrar restricción</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

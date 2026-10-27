@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Ingresar | Control de Acceso</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/sb-admin/css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome/css/all.min.css') }}">
+</head>
+<body class="bg-primary">
+<div id="layoutAuthentication">
+    <div id="layoutAuthentication_content">
+        <main>
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-5">
+                        <div class="card shadow-lg border-0 rounded-lg mt-5">
+                            <div class="card-header">
+                                <h3 class="text-center fw-light my-4"><i class="fas fa-shield-halved"></i> Control de Acceso</h3>
+                            </div>
+                            <div class="card-body">
+                                {% with mensajes = get_flashed_messages(with_categories=true) %}
+                                {% for categoria, mensaje in mensajes %}
+                                <div class="alert alert-{{ categoria }}" role="alert">{{ mensaje }}</div>
+                                {% endfor %}
+                                {% endwith %}
+                                {% if not roles %}
+                                <div class="alert alert-warning">
+                                    No hay claves del panel configuradas. Defina <code>PANEL_PASSWORD_ADMIN</code>,
+                                    <code>PANEL_PASSWORD_VIGILANTE</code> y <code>PANEL_PASSWORD_DOCENTE</code> en <code>.env</code>.
+                                </div>
+                                {% endif %}
+                                <form method="post">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select" id="rol" name="rol" required>
+                                            {% for clave, nombre in roles %}
+                                            <option value="{{ clave }}">{{ nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <label for="rol">Rol</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input class="form-control" id="clave" name="clave" type="password"
+                                               placeholder="Clave" autocomplete="current-password" required>
+                                        <label for="clave">Clave del panel</label>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button class="btn btn-primary" type="submit" {% if not roles %}disabled{% endif %}>Ingresar</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="card-footer text-center py-3">
+                                <div class="small text-muted">Sistema de Control de Acceso, Asistencia y Seguridad Universitaria</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

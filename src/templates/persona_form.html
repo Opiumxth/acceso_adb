@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block titulo %}{% if editar %}Editar persona{% else %}Nueva persona{% endif %}{% endblock %}
+{% block contenido %}
+<h1 class="mt-4">{% if editar %}Editar persona {{ persona.codigo|valor }}{% else %}Nueva persona{% endif %}</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item"><a href="{{ url_for('personas') }}">Personas</a></li>
+    <li class="breadcrumb-item active">{% if editar %}Editar{% else %}Nueva{% endif %}</li>
+</ol>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="post" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label" for="tipo">Tipo</label>
+                    <select class="form-select" id="tipo" name="tipo" {% if editar %}disabled{% endif %}>
+                        {% for t in tipos %}
+                        <option value="{{ t }}" {% if persona.tipo == t %}selected{% endif %}>{{ t|capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="codigo">Código (8 dígitos, contenido del QR)</label>
+                    <input class="form-control" id="codigo" name="codigo" value="{{ persona.codigo|valor if persona.codigo else '' }}"
+                           maxlength="8" inputmode="numeric" {% if editar %}readonly{% else %}required{% endif %}>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="dni">DNI (8 dígitos)</label>
+                    <input class="form-control" id="dni" name="dni" value="{{ persona.dni|valor if persona.dni else '' }}"
+                           maxlength="8" inputmode="numeric" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="nombre">Nombre completo</label>
+                    <input class="form-control" id="nombre" name="nombre" value="{{ persona.nombre or '' }}" maxlength="100" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="correo">Correo (opcional)</label>
+                    <input class="form-control" id="correo" name="correo" type="email" value="{{ persona.correo or '' }}" maxlength="100">
+                </div>
+
+                <div class="col-md-6 d-none" data-tipo-grupo="estudiante">
+                    <label class="form-label" for="id_escuela">Escuela</label>
+                    <select class="form-select" id="id_escuela" name="id_escuela">
+                        <option value="">-</option>
+                        {% for e in escuelas %}
+                        <option value="{{ e.id_escuela }}" {% if persona.escuela == e.nombre or persona.id_escuela == e.id_escuela %}selected{% endif %}>{{ e.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 d-none" data-tipo-grupo="estudiante">
+                    <label class="form-label" for="ciclo">Ciclo (1 a 12)</label>
+                    <input class="form-control" id="ciclo" name="ciclo" type="number" min="1" max="12" value="{{ persona.ciclo or '' }}">
+                </div>
+                <div class="col-md-6 d-none" data-tipo-grupo="docente">
+                    <label class="form-label" for="especialidad">Especialidad (opcional)</label>
+                    <input class="form-control" id="especialidad" name="especialidad" value="{{ persona.especialidad or '' }}" maxlength="100">
+                </div>
+
+                {% if editar %}
+                <div class="col-md-3">
+                    <label class="form-label" for="estado">Estado</label>
+                    <select class="form-select" id="estado" name="estado">
+                        {% for e in estados %}
+                        <option value="{{ e }}" {% if persona.estado == e %}selected{% endif %}>{{ e|capitalize }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+            </div>
+            <div class="mt-4">
+                <button class="btn btn-primary" type="submit"><i class="fas fa-floppy-disk"></i> Guardar</button>
+                <a class="btn btn-outline-secondary" href="{{ url_for('personas') }}">Cancelar</a>
+            </div>
+            {% if not editar %}
+            <p class="text-muted small mt-3 mb-0">El rostro, el modelo facial y el QR se registran en el punto de acceso:
+                menú de consola, opción 2.3 (registrar solo el rostro de una persona que ya existe).</p>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% from "_macros.html" import boton_post %}
+{% block titulo %}Pases de visitantes{% endblock %}
+{% block contenido %}
+<h1 class="mt-4">Pases de visitantes</h1>
+<ol class="breadcrumb mb-4"><li class="breadcrumb-item active">Un visitante necesita un pase vigente: en la puerta basta cualquiera, en otra zona uno de esa zona</li></ol>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-id-badge me-1"></i> Pases vigentes ahora ({{ filas|length }})</div>
+    <div class="card-body">
+        {% if not filas %}
+        <p class="text-muted mb-0">No hay pases vigentes.</p>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped table-hover align-middle mb-0">
+                <thead class="table-light">
+                <tr><th>N.º</th><th>Visitante</th><th>Anfitrión</th><th>Zona de destino</th><th>Desde</th><th>Hasta</th><th>Horas restantes</th><th>Motivo</th><th></th></tr>
+                </thead>
+                <tbody>
+                {% for p in filas %}
+                <tr>
+                    <td>{{ p.id_pase }}</td><td>{{ p.codigo_visitante|valor }} {{ p.visitante }}</td><td>{{ p.anfitrion }}</td>
+                    <td>{{ p.zona_destino }}</td><td class="text-nowrap">{{ p.desde }}</td><td class="text-nowrap">{{ p.hasta }}</td>
+                    <td>{{ p.horas_restantes|valor }}</td><td>{{ p.motivo|valor }}</td>
+                    <td>{{ boton_post(url_for('pase_revocar', id_pase=p.id_pase), 'Revocar', 'btn-outline-danger', 'fa-ban',
+                                      'Revocar el pase ' ~ p.id_pase ~ '? El visitante ya no podrá ingresar con él.') }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-plus me-1"></i> Emitir un pase</div>
+    <div class="card-body">
+        <form method="post" action="{{ url_for('pase_nuevo') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label small mb-1" for="codigo_visitante">Código del visitante</label>
+                    <input class="form-control" id="codigo_visitante" name="codigo_visitante" maxlength="8" inputmode="numeric" placeholder="Ej.: 99000002" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small mb-1" for="codigo_anfitrion">Código del anfitrión</label>
+                    <input class="form-control" id="codigo_anfitrion" name="codigo_anfitrion" maxlength="8" inputmode="numeric" placeholder="Ej.: 80000001" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small mb-1" for="zona">Zona de destino</label>
+                    <select class="form-select" id="zona" name="zona" required>
+                        {% for z in zonas %}<option value="{{ z.id_zona }}">{{ z.nombre }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3"></div>
+                <div class="col-md-3">
+                    <label class="form-label small mb-1" for="desde">Vigente desde (hora local)</label>
+                    <input class="form-control" id="desde" name="desde" type="datetime-local" value="{{ desde_sugerido }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small mb-1" for="hasta">Vigente hasta (hora local)</label>
+                    <input class="form-control" id="hasta" name="hasta" type="datetime-local" value="{{ hasta_sugerido }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small mb-1" for="motivo">Motivo</label>
+                    <input class="form-control" id="motivo" name="motivo" maxlength="150">
+                </div>
+            </div>
+            <button class="btn btn-primary mt-3" type="submit"><i class="fas fa-floppy-disk"></i> Emitir pase</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

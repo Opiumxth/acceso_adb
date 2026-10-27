@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}Reportes{% endblock %}
+{% block contenido %}
+<h1 class="mt-4">Reportes</h1>
+<ol class="breadcrumb mb-4"><li class="breadcrumb-item active">Cada reporte ejecuta un procedimiento r_* de Oracle (REF CURSOR) con el usuario de su rol</li></ol>
+<div class="row">
+    {% for clave, r in reportes %}
+    <div class="col-xl-4 col-md-6">
+        <div class="card mb-4 h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ r.titulo }}</h5>
+                <p class="card-text small text-muted">{{ r.descripcion }}</p>
+                <code class="small">{{ r.procedimiento }}</code>
+            </div>
+            <div class="card-footer">
+                <a class="btn btn-primary btn-sm" href="{{ url_for('reporte', clave=clave) }}"><i class="fas fa-play"></i> Ejecutar</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

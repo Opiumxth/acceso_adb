@@ -12,8 +12,10 @@ whenever sqlerror exit failure rollback
 --   docker cp sql/02_datos.sql oracle-xe:/tmp/02_datos.sql
 --   docker exec -i oracle-xe sqlplus -s 'acceso_owner/"Owner#2026"@XEPDB1' @/tmp/02_datos.sql
 --
--- Todas las fechas son relativas a sysdate (hora del servidor), por lo que
--- se puede volver a cargar el mismo dia con 99_reset.sql + 01 + 02.
+-- Todas las fechas son relativas a sysdate, por lo que se puede volver a
+-- cargar el mismo dia con 99_reset.sql + 01 + 02. Las horas del dia (clases,
+-- ingresos, denegados) estan pensadas en hora LOCAL (parametro ZONA_HORARIA)
+-- y se guardan en hora del servidor sumando f_desfase.
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
@@ -190,19 +192,27 @@ insert into inscripciones (id_seccion, id_estudiante) values (4, 19);
 
 -- ---------------------------------------------------------------------
 -- Pases, restricciones
+-- Los dias son de la hora local (ZONA_HORARIA) y se guardan en hora del
+-- servidor: f_desfase da la diferencia en dias (servidor - local).
 -- ---------------------------------------------------------------------
--- pase vigente: visitante 30, anfitrion docente 1, solo biblioteca (zona 2)
-insert into pases (id_visitante, id_anfitrion, id_zona_destino, vigente_desde, vigente_hasta, motivo, estado) values
-    (30, 1, 2, cast(trunc(sysdate) - 1 as timestamp), cast(trunc(sysdate) + 30 as timestamp),
-     'Consulta bibliografica para investigacion', 'activo');
--- pase vencido: visitante 31, anfitrion administrativo 5, puerta (zona 1)
-insert into pases (id_visitante, id_anfitrion, id_zona_destino, vigente_desde, vigente_hasta, motivo, estado) values
-    (31, 5, 1, cast(trunc(sysdate) - 10 as timestamp), cast(trunc(sysdate) - 3 as timestamp),
-     'Reunion con la oficina de administracion', 'activo');
+declare
+    v_desf number := f_desfase;
+    v_hoy  date   := trunc(sysdate - f_desfase);   -- hoy segun la hora local
+begin
+    -- pase vigente: visitante 30, anfitrion docente 1, solo biblioteca (zona 2)
+    insert into pases (id_visitante, id_anfitrion, id_zona_destino, vigente_desde, vigente_hasta, motivo, estado) values
+        (30, 1, 2, cast(v_hoy - 1 + v_desf as timestamp), cast(v_hoy + 30 + v_desf as timestamp),
+         'Consulta bibliografica para investigacion', 'activo');
+    -- pase vencido: visitante 31, anfitrion administrativo 5, puerta (zona 1)
+    insert into pases (id_visitante, id_anfitrion, id_zona_destino, vigente_desde, vigente_hasta, motivo, estado) values
+        (31, 5, 1, cast(v_hoy - 10 + v_desf as timestamp), cast(v_hoy - 3 + v_desf as timestamp),
+         'Reunion con la oficina de administracion', 'activo');
+end;
+/
 
 -- restriccion vigente: estudiante 19 (codigo 25200010) desde hace 5 dias
 insert into restricciones (id_persona, motivo, fecha_inicio, fecha_fin, estado) values
-    (19, 'Sancion disciplinaria pendiente de resolucion', trunc(sysdate) - 5, null, 'vigente');
+    (19, 'Sancion disciplinaria pendiente de resolucion', trunc(sysdate - f_desfase) - 5 + f_desfase, null, 'vigente');
 
 -- ---------------------------------------------------------------------
 -- Sesiones pasadas (ids 1-24), asistencias simuladas y accesos a aula
@@ -224,6 +234,7 @@ declare
     v_cod_doc    personas.codigo%type;
     v_r          number;
     v_estado     asistencias.estado%type;
+    v_desf       number := f_desfase;   -- dias: hora del servidor - hora local
 begin
     dbms_random.seed(2026);
 
@@ -244,7 +255,8 @@ begin
 
         for k in 1 .. 6 loop
             v_id_sesion := (sec.id_seccion - 1) * 6 + k;
-            v_dia := trunc(sysdate) - 7 * (7 - k);
+            -- v_hora es la hora de clase LOCAL; se guarda en hora del servidor
+            v_dia := trunc(sysdate - v_desf) - 7 * (7 - k) + v_desf;
             v_ini := cast(v_dia + v_hora / 24 as timestamp);
 
             insert into sesiones (id_sesion, id_seccion, hora_inicio, hora_fin, estado)
@@ -353,11 +365,12 @@ declare
     v_a5    accesos.id_acceso%type;
     v_a7    accesos.id_acceso%type;
     v_a8    accesos.id_acceso%type;
+    v_desf  number := f_desfase;   -- dias: hora del servidor - hora local
 
-    -- instante: hace p_dias dias a las p_h:p_m
+    -- instante: hace p_dias dias a las p_h:p_m de la hora LOCAL, en hora del servidor
     function ts (p_dias in number, p_h in number, p_m in number) return timestamp is
     begin
-        return cast(trunc(sysdate) - p_dias + (p_h * 60 + p_m) / 1440 as timestamp);
+        return cast(trunc(sysdate - v_desf) - p_dias + v_desf + (p_h * 60 + p_m) / 1440 as timestamp);
     end ts;
 
     procedure acceso (
@@ -383,7 +396,7 @@ begin
 
     -- ingresos y salidas por la puerta; visitas a biblioteca y laboratorio
     for d in 1 .. 14 loop
-        v_dia := trunc(sysdate) - d;
+        v_dia := trunc(sysdate - v_desf) - d + v_desf;   -- inicio del dia local, en hora del servidor
         for p in (select id_persona, codigo, tipo
                     from personas
                    where tipo in ('estudiante', 'docente', 'vigilante', 'administrativo')
@@ -479,6 +492,45 @@ begin
     values (1, 31, v_a8, 'visitante_sin_pase_vigente', 'media',
             'Visitante con pase vencido solicito ingreso por la puerta principal',
             v_t, 'abierta', 'vigilante');
+end;
+/
+
+-- ---------------------------------------------------------------------
+-- Accesos de HOY (hora local): solo los que ya ocurrieron al cargar los
+-- datos, para que el dashboard del panel no salga vacio. Usa una semilla
+-- propia y asi no cambia los accesos de los dias anteriores. Los
+-- estudiantes 18 (inactivo) y 19 (restringido) no ingresan.
+-- ---------------------------------------------------------------------
+declare
+    v_desf   number := f_desfase;
+    v_dia    date   := trunc(sysdate - f_desfase) + f_desfase;  -- hoy 00:00 local, en hora del servidor
+    v_limite timestamp := cast(sysdate - 5 / 1440 as timestamp); -- no se inventan accesos futuros
+    v_in     timestamp;
+    v_out    timestamp;
+begin
+    dbms_random.seed(777);
+    for p in (select id_persona, codigo
+                from personas
+               where tipo in ('estudiante', 'docente', 'vigilante', 'administrativo')
+                 and id_persona not in (18, 19)
+               order by id_persona) loop
+        if dbms_random.value(0, 100) < 85 then
+            v_in  := cast(v_dia + (420 + trunc(dbms_random.value(0, 150))) / 1440 as timestamp);
+            v_out := cast(v_dia + (960 + trunc(dbms_random.value(0, 240))) / 1440 as timestamp);
+            if v_in <= v_limite then
+                insert into accesos (id_persona, codigo_leido, id_punto, fecha_hora,
+                                     resultado, metodo, confianza)
+                values (p.id_persona, p.codigo, 1, v_in, 'permitido', 'simulado',
+                        round(dbms_random.value(12, 38), 2));
+            end if;
+            if v_out <= v_limite then
+                insert into accesos (id_persona, codigo_leido, id_punto, fecha_hora,
+                                     resultado, metodo, confianza)
+                values (p.id_persona, p.codigo, 2, v_out, 'permitido', 'simulado',
+                        round(dbms_random.value(12, 38), 2));
+            end if;
+        end if;
+    end loop;
 end;
 /
 

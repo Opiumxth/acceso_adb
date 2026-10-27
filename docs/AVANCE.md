@@ -319,3 +319,27 @@ La **cámara real**. No encendí la webcam porque capturaría tu imagen; la lect
 ### Evidencia
 
 - `docs/evidencia/etapa6_python.txt`
+
+---
+
+## Etapa 7 - Panel web Flask (implementada y probada; documentación final pendiente)
+
+### Qué se hizo
+
+- **Panel Flask** (`src/app.py`, `src/panel.py`, `src/templates/`, `src/static/`): dashboard, personas (CRUD), bitácora de accesos con filtros, asistencia (secciones, sesiones, programar, cancelar y cerrar sesión), incidencias, pases, restricciones y reportes que ejecutan los `r_*` (con descarga CSV). Se inicia con `./venv/bin/python src/app.py`.
+- **Un usuario Oracle por rol**: el login usa `PANEL_PASSWORD_<ROL>` de `.env` y todas las consultas se hacen con `u_admin`, `u_vigilante` o `u_docente`. Ningún rol lee tablas. Hay protección CSRF, cookie `HttpOnly` y `SameSite=Lax`, bloqueo tras 5 intentos fallidos, destino de login solo interno y escape de datos del usuario.
+- **Template (autorizado por el usuario, opción "todo local")**: SB Admin 7.0.7 (MIT), Bootstrap 5.2.3 y Font Awesome Free 6.7.2 en `src/static/vendor/`, con sus licencias y un README de procedencia. Los paquetes npm se verificaron por integridad SHA-512.
+- **Hora local**: el servidor Oracle está en UTC, 5 horas por delante de Lima. Las marcas se siguen guardando en hora del servidor, pero los reportes y el panel interpretan fechas y muestran horas en hora local (`ZONA_HORARIA`) con `f_desfase` y `f_hoy_local` (en `01_esquema.sql`). `02_datos.sql` genera las horas de clase e ingresos en hora local y siembra los accesos de hoy ya ocurridos.
+- **SQL nuevo**: `p_obtener_desfase`, `p_crear_sesion`, `p_cancelar_sesion`, `r_resumen_hoy`, `r_accesos_bitacora`, `r_zonas`, `r_secciones`, `r_sesiones`, `r_restricciones`; permisos en `06_permisos.sql` (vigilante: resumen, bitácora, zonas y restricciones; docente: secciones y sesiones; admin: todo).
+
+### Pruebas
+
+- `tests/test_panel.py`: 64 pruebas, todas OK (login y seguridad, matriz de permisos por rol, flujos de personas, accesos, asistencia, incidencias, pases, restricciones y reportes, hora local contra el reloj de Lima). Suite completa con la Etapa 6: 113 pruebas OK. Las pruebas limpian lo que crean y cierran las incidencias que disparan.
+- Reconstrucción desde cero de `00` a `06`: 0 errores `ORA-` y 0 errores de compilación. Evidencia regenerada.
+- Evidencia: `docs/evidencia/etapa7_panel.txt` y capturas en `docs/evidencia/panel/`.
+
+### Pendiente (no se alcanzó a hacer)
+
+1. **Actualizar cifras de las etapas 1 a 4 en este archivo y en `RESUMEN.md`**: tras agregar los accesos de hoy, la carga trae 505 accesos (no 494); `test_05_06` ahora da 7 `ORA-00942` y 9 `PLS-00201`; `reportes.txt` incluye los reportes nuevos y las horas en hora local. Las evidencias (`docs/evidencia/*.txt`) ya están regeneradas y son las que valen.
+2. **Actualizar `RESUMEN.md`** (reportes y catálogos nuevos, panel web, hora local) y escribir un `README.md` de arranque rápido.
+3. Probar el panel en tu navegador y la webcam real (solo se probó con Firefox headless y cámara simulada).

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block titulo %}Incidencias{% endblock %}
+{% block contenido %}
+<h1 class="mt-4">Incidencias</h1>
+<ol class="breadcrumb mb-4"><li class="breadcrumb-item active">Generadas por el sistema o registradas por el vigilante</li></ol>
+
+<form method="get" class="card card-body mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small mb-1" for="estado">Estado</label>
+            <select class="form-select" id="estado" name="estado">
+                <option value="">Todos</option>
+                {% for e in estados %}<option value="{{ e }}" {% if e == estado %}selected{% endif %}>{{ e|replace('_', ' ')|capitalize }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label small mb-1" for="gravedad">Gravedad</label>
+            <select class="form-select" id="gravedad" name="gravedad">
+                <option value="">Todas</option>
+                {% for g in gravedades %}<option value="{{ g }}" {% if g == gravedad %}selected{% endif %}>{{ g|capitalize }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 d-grid d-md-flex gap-2">
+            <button class="btn btn-primary" type="submit"><i class="fas fa-filter"></i> Filtrar</button>
+            <a class="btn btn-outline-secondary" href="{{ url_for('incidencias') }}">Limpiar</a>
+        </div>
+    </div>
+</form>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-triangle-exclamation me-1"></i> {{ filas|length }} incidencia(s)</div>
+    <div class="card-body">
+        {% if not filas %}
+        <p class="text-muted mb-0">No hay incidencias con ese criterio.</p>
+        {% else %}
+        <div class="table-responsive">
+            <table class="table table-sm table-striped align-middle mb-0 tabla-compacta">
+                <thead class="table-light">
+                <tr><th>N.º</th><th>Fecha</th><th>Zona</th><th>Tipo</th><th>Gravedad</th><th>Estado</th><th>Origen</th><th>Persona</th><th>Descripción</th><th>Acción</th></tr>
+                </thead>
+                <tbody>
+                {% for i in filas %}
+                <tr>
+                    <td>{{ i.id_incidencia }}</td><td class="text-nowrap">{{ i.fecha }}</td><td>{{ i.zona }}</td><td>{{ i.tipo }}</td>
+                    <td>{{ badge(i.gravedad) }}</td><td>{{ badge(i.estado) }}</td><td>{{ i.origen }}</td>
+                    <td>{% if i.persona %}{{ i.codigo_persona|valor }} {{ i.persona }}{% else %}-{% endif %}</td>
+                    <td style="min-width: 240px">{{ i.descripcion|valor }}</td>
+                    <td style="min-width: 220px">
+                        {% if i.estado != 'resuelta' %}
+                        <form method="post" action="{{ url_for('incidencia_estado', id_incidencia=i.id_incidencia) }}" class="d-flex flex-wrap gap-1">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input class="form-control form-control-sm w-100" name="comentario" placeholder="Comentario (opcional)" maxlength="120">
+                            {% if i.estado == 'abierta' %}
+                            <button class="btn btn-sm btn-outline-warning text-nowrap" name="estado" value="en_revision" type="submit">En revisión</button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-outline-success" name="estado" value="resuelta" type="submit">Resolver</button>
+                        </form>
+                        {% else %}
+                        <span class="text-muted small">Resuelta</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-plus me-1"></i> Registrar una incidencia</div>
+    <div class="card-body">
+        <form method="post" action="{{ url_for('incidencia_nueva') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label small mb-1" for="n_zona">Zona</label>
+                    <select class="form-select" id="n_zona" name="zona" required>
+                        {% for z in zonas %}<option value="{{ z.id_zona }}">{{ z.nombre }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small mb-1" for="n_tipo">Tipo</label>
+                    <input class="form-control" id="n_tipo" name="tipo" maxlength="40" placeholder="Ej.: equipo_danado" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small mb-1" for="n_gravedad">Gravedad</label>
+                    <select class="form-select" id="n_gravedad" name="gravedad" required>
+                        {% for g in gravedades %}<option value="{{ g }}" {% if g == 'media' %}selected{% endif %}>{{ g|capitalize }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small mb-1" for="n_persona">Código de persona</label>
+                    <input class="form-control" id="n_persona" name="codigo_persona" maxlength="8" inputmode="numeric" placeholder="Opcional">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small mb-1" for="n_acceso">N.º de acceso</label>
+                    <input class="form-control" id="n_acceso" name="id_acceso" inputmode="numeric" placeholder="Opcional">
+                </div>
+                <div class="col-12">
+                    <label class="form-label small mb-1" for="n_desc">Descripción</label>
+                    <input class="form-control" id="n_desc" name="descripcion" maxlength="300">
+                </div>
+            </div>
+            <button class="btn btn-primary mt-3" type="submit"><i class="fas fa-floppy-disk"></i> Registrar</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

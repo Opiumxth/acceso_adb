@@ -43,7 +43,7 @@ Ricardo Salas Medina	 vigilante    activo		  1
 
 RESULTADO  MOTIVO		   ID_ACCESO
 ---------- ---------------------- ----------
-permitido  -				1519
+permitido  -				1530
 -- 1.6 p_obtener_parametro funciona (el punto lee el umbral LBPH)
 
 UMBRAL
@@ -100,6 +100,16 @@ CODIGO	  NOMBRE		    PRESENTES  TARDANZAS     FALTAS SESIONES_CERRADAS PCT_ASIST
 ID_SECCION CURSO    GRUPO CODIGO    NOMBRE			 FALTAS SESIONES_CERRADAS PCT_FALTAS LIMITE_PCT NIVEL
 ---------- -------- ----- --------- ------------------------ ---------- ----------------- ---------- ---------- -------------
 	 2 SIS302   A	  25200007  Valeria Ortiz Mejia 	      1 		6	16.7	     30 en_riesgo
+-- 2.2b r_secciones (lista de secciones para elegir cual consultar) funciona
+
+ID_SECCION CURSO    NOMBRE_CURSO		       GRUPO PERIODO	DOCENTE 	       AULA	       INSCRITOS SESIONES_CERRADAS SESIONES_ABIERTAS
+---------- -------- ---------------------------------- ----- ---------- ---------------------- -------------- ---------- ----------------- -----------------
+	 4 CC101    Programacion I		       B     2026-II	Carlos Mendoza Rios    Aula A-101	       4		 6		   0
+	 3 SIS201   Estructuras de Datos	       A     2026-II	Jorge Paredes Vega     Laboratorio de	       5		 6		   0
+												Computo 1
+
+	 1 SIS301   Administracion de Base de Datos    A     2026-II	Carlos Mendoza Rios    Aula A-101	       6		 8		   0
+	 2 SIS302   Ingenieria de Software	       A     2026-II	Lucia Fernandez Soto   Aula A-102	       4		 6		   0
 -- 2.3 p_registrar_acceso: debe FALLAR (PLS-00201)
 BEGIN p_registrar_acceso('25200001', 1, 1, 20, 'simulado', :r, :m, :id); END;
 
@@ -122,6 +132,17 @@ ORA-06550: line 1, column 7:
 PL/SQL: Statement ignored
 
 
+-- 2.4b r_resumen_hoy (consulta del panel de seguridad): debe FALLAR (PLS-00201)
+BEGIN r_resumen_hoy(:c); END;
+
+      *
+ERROR at line 1:
+ORA-06550: line 1, column 7:
+PLS-00201: identifier 'R_RESUMEN_HOY' must be declared
+ORA-06550: line 1, column 7:
+PL/SQL: Statement ignored
+
+
 -- 2.5 SELECT directo sobre inscripciones: debe FALLAR (ORA-00942)
 select count(*) from inscripciones
                      *
@@ -138,7 +159,7 @@ USER is "U_VIGILANTE"
 
 RESULTADO  MOTIVO		   ID_ACCESO
 ---------- ---------------------- ----------
-permitido  -				1520
+permitido  -				1531
 -- 3.2 pases: emitir para el visitante 31 (zona 2) y revocarlo
 
    ID_PASE
@@ -154,25 +175,51 @@ ID_INCIDENCIA
 
 MOTIVO		       ZONA		      TOTAL CODIGOS_DISTINTOS PRIMERO	       ULTIMO
 ---------------------- ---------------------- ----- ----------------- ---------------- ----------------
-codigo_inexistente     Puerta Principal 	  5		    2 2026-10-27 19:19 2026-10-27 19:19
-codigo_inexistente     Subtotal del motivo	  5		    2 2026-10-27 19:19 2026-10-27 19:19
-fuera_de_horario       Puerta Principal 	  1		    1 2026-10-27 19:19 2026-10-27 19:19
-fuera_de_horario       Subtotal del motivo	  1		    1 2026-10-27 19:19 2026-10-27 19:19
-persona_inactiva       Puerta Principal 	  2		    2 2026-10-27 19:19 2026-10-27 19:19
-persona_inactiva       Subtotal del motivo	  2		    2 2026-10-27 19:19 2026-10-27 19:19
-persona_restringida    Puerta Principal 	  2		    2 2026-10-27 19:19 2026-10-27 19:19
-persona_restringida    Subtotal del motivo	  2		    2 2026-10-27 19:19 2026-10-27 19:19
-rostro_no_coincide     Puerta Principal 	  1		    1 2026-10-27 19:19 2026-10-27 19:19
-rostro_no_coincide     Subtotal del motivo	  1		    1 2026-10-27 19:19 2026-10-27 19:19
-sin_pase_vigente       Aula A-101		  2		    2 2026-10-27 19:19 2026-10-27 19:19
-sin_pase_vigente       Puerta Principal 	  1		    1 2026-10-27 19:19 2026-10-27 19:19
-sin_pase_vigente       Subtotal del motivo	  3		    2 2026-10-27 19:19 2026-10-27 19:19
-zona_no_autorizada     Oficina de Administrac	  1		    1 2026-10-27 19:19 2026-10-27 19:19
+codigo_inexistente     Puerta Principal 	  5		    2 2026-10-27 15:56 2026-10-27 15:56
+codigo_inexistente     Subtotal del motivo	  5		    2 2026-10-27 15:56 2026-10-27 15:56
+fuera_de_horario       Puerta Principal 	  1		    1 2026-10-27 15:56 2026-10-27 15:56
+fuera_de_horario       Subtotal del motivo	  1		    1 2026-10-27 15:56 2026-10-27 15:56
+persona_inactiva       Puerta Principal 	  2		    2 2026-10-27 15:56 2026-10-27 15:56
+persona_inactiva       Subtotal del motivo	  2		    2 2026-10-27 15:56 2026-10-27 15:56
+persona_restringida    Puerta Principal 	  2		    2 2026-10-27 15:56 2026-10-27 15:56
+persona_restringida    Subtotal del motivo	  2		    2 2026-10-27 15:56 2026-10-27 15:56
+rostro_no_coincide     Puerta Principal 	  1		    1 2026-10-27 15:56 2026-10-27 15:56
+rostro_no_coincide     Subtotal del motivo	  1		    1 2026-10-27 15:56 2026-10-27 15:56
+sin_pase_vigente       Aula A-101		  2		    2 2026-10-27 15:56 2026-10-27 15:56
+sin_pase_vigente       Puerta Principal 	  1		    1 2026-10-27 15:56 2026-10-27 15:56
+sin_pase_vigente       Subtotal del motivo	  3		    2 2026-10-27 15:56 2026-10-27 15:56
+zona_no_autorizada     Oficina de Administrac	  1		    1 2026-10-27 15:56 2026-10-27 15:56
 		       ion
 
-zona_no_autorizada     Subtotal del motivo	  1		    1 2026-10-27 19:19 2026-10-27 19:19
-TOTAL GENERAL	       -			 15		    9 2026-10-27 19:19 2026-10-27 19:19
--- 3.5 lo que no le corresponde: PLS-00201, PLS-00201 y ORA-00942
+zona_no_autorizada     Subtotal del motivo	  1		    1 2026-10-27 15:56 2026-10-27 15:56
+TOTAL GENERAL	       -			 15		    9 2026-10-27 15:56 2026-10-27 15:56
+-- 3.4b consultas del panel: resumen del dia, bitacora de denegados y restricciones vigentes
+
+FECHA_HORA_LOCAL ACCESOS_HOY PERMITIDOS_HOY DENEGADOS_HOY PERSONAS_HOY INCIDENCIAS_ABIERTAS INCIDENCIAS_ALTAS SESIONES_EN_CURSO PASES_VIGENTES RESTRICCIONES_VIGENTES
+---------------- ----------- -------------- ------------- ------------ -------------------- ----------------- ----------------- -------------- ----------------------
+2026-10-27 15:56	  38		 23	       15	    14			  5		    3		      0 	     1			    1
+
+ ID_ACCESO FECHA_HORA	       CODIGO	 PERSONA											      TIPO_PERSONA    ZONA
+---------- ------------------- --------- ---------------------------------------------------------------------------------------------------- --------------- ----------------------
+PUNTO										 RESULTADO  MOTIVO		   METODO	 CONFIANZA
+-------------------------------------------------------------------------------- ---------- ---------------------- ------------ ----------
+      1529 2026-10-27 15:56:35 25200012  Persona Modificada										      estudiante      Puerta Principal
+Puerta ingreso									 denegado   persona_inactiva	   simulado		22
+
+      1528 2026-10-27 15:56:35 99000002  Hugo Villanueva Rey										      visitante       Aula A-101
+Aula A-101									 denegado   sin_pase_vigente	   simulado		26
+
+      1525 2026-10-27 15:56:34 25200012  Persona Modificada										      estudiante      Puerta Principal
+Puerta ingreso									 denegado   persona_restringida    simulado		22
+
+
+ID_RESTRICCION CODIGO	 NOMBRE 		  MOTIVO		 DESDE		  HASTA
+-------------- --------- ------------------------ ---------------------- ---------------- ----------------
+	  1000 25200010  Miguel Navarro Pinto	  Sancion disciplinaria  2026-10-22 00:00 indefinida
+						  pendiente de resolucio
+						  n
+
+-- 3.5 lo que no le corresponde: PLS-00201 (x3) y ORA-00942
 BEGIN p_registrar_persona('88000009', 'No Debe Crearse', '88000009', null, 'visitante', null, null, null, :ip); END;
 
       *
@@ -189,6 +236,16 @@ BEGIN r_asistencia_seccion(1, :c); END;
 ERROR at line 1:
 ORA-06550: line 1, column 7:
 PLS-00201: identifier 'R_ASISTENCIA_SECCION' must be declared
+ORA-06550: line 1, column 7:
+PL/SQL: Statement ignored
+
+
+BEGIN r_secciones(:c); END;
+
+      *
+ERROR at line 1:
+ORA-06550: line 1, column 7:
+PLS-00201: identifier 'R_SECCIONES' must be declared
 ORA-06550: line 1, column 7:
 PL/SQL: Statement ignored
 
@@ -214,6 +271,11 @@ baja_logica
 ACCION_88000002
 --------------------------------
 eliminada
+-- 4.2b sesiones: programar una dentro de 30 dias y cancelarla (solo el admin)
+
+ID_SESION_CREADA
+----------------
+	    1000
 -- 4.3 reportes y listados funcionan
 
 ID_PERSONA CODIGO    NOMBRE		      DNI      CORREO												    TIPO	 ESTADO
@@ -224,7 +286,7 @@ ESPECIALIDAD
 ----------------------------------------------------------------------------------------------------
       1002 88000001  Auditoria Prueba Uno Mod 88000001 aud1.nuevo@campus.test										    visitante	 inactivo
 		     ificada
-27-OCT-26 07.26.38.319241 PM
+27-OCT-26 03.56.38.758835000 PM
 
 
 
@@ -235,8 +297,8 @@ ANFITRION											     ZONA_DESTINO								      DESDE
 HASTA		 HORAS_RESTANTES MOTIVO
 ---------------- --------------- ----------------------
       1000 99000001 Elena Paz Cardenas
-Carlos Mendoza Rios										     Biblioteca Central 							      2026-10-27 18:19
-2026-10-28 19:19	    23.9 Consulta bibliografica
+Carlos Mendoza Rios										     Biblioteca Central 							      2026-10-27 14:56
+2026-10-28 15:56	      24 Consulta bibliografica
 				  para investigacion
 
 -- 4.4 aun siendo administrador no tiene acceso directo a las tablas (ORA-00942)
@@ -253,22 +315,36 @@ ORA-00942: table or view does not exist
 
 ID_AUDITORIA TABLA	    OPERACION USUARIO	     HORA      DETALLE
 ------------ -------------- --------- -------------- --------- ---------------------------------------------------------------------------------------------------------
-	1000 RESTRICCIONES  INSERT    U_VIGILANTE    19:26:38  id_restriccion=1002 persona=31 estado=vigente fecha_fin= motivo=Prueba de permisos del vigilante
-	1001 RESTRICCIONES  UPDATE    U_VIGILANTE    19:26:38  id_restriccion=1002 persona=31 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-27 19:26]
-	1002 PERSONAS	    INSERT    U_ADMIN	     19:26:38  id=1002 codigo=88000001 tipo=visitante estado=activo nombre=Auditoria Prueba Uno
-	1003 PERSONAS	    UPDATE    U_ADMIN	     19:26:38  id=1002 codigo=88000001 | nombre: [Auditoria Prueba Uno] -> [Auditoria Prueba Uno Modificada] correo:
+	1000 PERSONAS	    INSERT    ACCESO_OWNER   20:56:34  id=1000 codigo=25200012 tipo=estudiante estado=activo nombre=Persona de Prueba
+	1001 PERSONAS	    UPDATE    ACCESO_OWNER   20:56:34  id=1000 codigo=25200012 | nombre: [Persona de Prueba] -> [Persona Modificada] correo:
+							       [prueba@campus.test] -> [modificada@campus.test]
+
+	1002 RESTRICCIONES  INSERT    ACCESO_OWNER   20:56:34  id_restriccion=1001 persona=1000 estado=vigente fecha_fin= motivo=Restriccion de prueba
+	1003 RESTRICCIONES  UPDATE    ACCESO_OWNER   20:56:34  id_restriccion=1001 persona=1000 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-27 20:56]
+	1004 PERSONAS	    UPDATE    ACCESO_OWNER   20:56:35  id=1000 codigo=25200012 | estado: [activo] -> [inactivo]
+	1005 PERSONAS	    INSERT    ACCESO_OWNER   20:56:35  id=1001 codigo=25200013 tipo=administrativo estado=activo nombre=Persona Sin Historial
+	1006 PERSONAS	    DELETE    ACCESO_OWNER   20:56:35  id=1001 codigo=25200013 tipo=administrativo estado=activo nombre=Persona Sin Historial
+	1007 RESTRICCIONES  INSERT    U_VIGILANTE    20:56:38  id_restriccion=1002 persona=31 estado=vigente fecha_fin= motivo=Prueba de permisos del vigilante
+	1008 RESTRICCIONES  UPDATE    U_VIGILANTE    20:56:38  id_restriccion=1002 persona=31 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-27 20:56]
+	1009 PERSONAS	    INSERT    U_ADMIN	     20:56:38  id=1002 codigo=88000001 tipo=visitante estado=activo nombre=Auditoria Prueba Uno
+	1010 PERSONAS	    UPDATE    U_ADMIN	     20:56:38  id=1002 codigo=88000001 | nombre: [Auditoria Prueba Uno] -> [Auditoria Prueba Uno Modificada] correo:
 							       [aud1@campus.test] -> [aud1.nuevo@campus.test]
 
-	1004 RESTRICCIONES  INSERT    U_ADMIN	     19:26:38  id_restriccion=1003 persona=1002 estado=vigente fecha_fin= motivo=Prueba de auditoria
-	1005 RESTRICCIONES  UPDATE    U_ADMIN	     19:26:38  id_restriccion=1003 persona=1002 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-27 19:26]
-	1006 PERSONAS	    UPDATE    U_ADMIN	     19:26:38  id=1002 codigo=88000001 | estado: [activo] -> [inactivo]
-	1007 PERSONAS	    INSERT    U_ADMIN	     19:26:38  id=1003 codigo=88000002 tipo=visitante estado=activo nombre=Auditoria Prueba Dos
-	1008 PERSONAS	    DELETE    U_ADMIN	     19:26:38  id=1003 codigo=88000002 tipo=visitante estado=activo nombre=Auditoria Prueba Dos
+	1011 RESTRICCIONES  INSERT    U_ADMIN	     20:56:38  id_restriccion=1003 persona=1002 estado=vigente fecha_fin= motivo=Prueba de auditoria
+	1012 RESTRICCIONES  UPDATE    U_ADMIN	     20:56:38  id_restriccion=1003 persona=1002 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-27 20:56]
+	1013 PERSONAS	    UPDATE    U_ADMIN	     20:56:38  id=1002 codigo=88000001 | estado: [activo] -> [inactivo]
+	1014 PERSONAS	    INSERT    U_ADMIN	     20:56:38  id=1003 codigo=88000002 tipo=visitante estado=activo nombre=Auditoria Prueba Dos
+	1015 PERSONAS	    DELETE    U_ADMIN	     20:56:38  id=1003 codigo=88000002 tipo=visitante estado=activo nombre=Auditoria Prueba Dos
 
 Resumen por usuario y operacion
 
 USUARIO        TABLA	      OPERACION TOTAL
 -------------- -------------- --------- -----
+ACCESO_OWNER   PERSONAS       DELETE	    1
+ACCESO_OWNER   PERSONAS       INSERT	    2
+ACCESO_OWNER   PERSONAS       UPDATE	    2
+ACCESO_OWNER   RESTRICCIONES  INSERT	    1
+ACCESO_OWNER   RESTRICCIONES  UPDATE	    1
 U_ADMIN        PERSONAS       DELETE	    1
 U_ADMIN        PERSONAS       INSERT	    2
 U_ADMIN        PERSONAS       UPDATE	    2

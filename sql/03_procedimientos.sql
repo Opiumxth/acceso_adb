@@ -23,9 +23,10 @@ whenever sqlerror continue
 --      -20099  error inesperado (se hace rollback y se informa sqlerrm)
 --  * Cada procedimiento que modifica datos hace commit al terminar bien y
 --    rollback ante cualquier error.
---  * Todas las marcas de tiempo se guardan en hora del servidor; solo la
---    ventana HH24:MI de permisos_zona se evalua en la zona horaria del
---    parametro ZONA_HORARIA.
+--  * Todas las marcas de tiempo se guardan en hora del servidor. La ventana
+--    HH24:MI de permisos_zona se evalua en la zona horaria del parametro
+--    ZONA_HORARIA, y los listados que muestran horas (p_listar_personas,
+--    reportes r_*) las devuelven en esa hora local (ver f_desfase en 01).
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
@@ -72,6 +73,25 @@ exception
         end if;
         raise_application_error(-20099, 'p_obtener_parametro: ' || sqlerrm);
 end p_obtener_parametro;
+/
+
+-- Diferencia en minutos entre la hora del servidor y la hora local
+-- (servidor - local; +300 con el servidor en UTC y America/Lima). Sirve a los
+-- clientes para pasar de hora local a hora del servidor al enviar fechas:
+-- servidor = local + desfase.
+create or replace procedure p_obtener_desfase (
+    o_minutos out number
+) is
+begin
+    o_minutos := round(f_desfase * 1440);
+exception
+    when others then
+        o_minutos := null;
+        if sqlcode between -20999 and -20000 then
+            raise;
+        end if;
+        raise_application_error(-20099, 'p_obtener_desfase: ' || sqlerrm);
+end p_obtener_desfase;
 /
 
 -- ---------------------------------------------------------------------
@@ -515,6 +535,109 @@ exception
         end if;
         raise_application_error(-20099, 'p_cerrar_sesion: ' || sqlerrm);
 end p_cerrar_sesion;
+/
+
+-- ---------------------------------------------------------------------
+-- p_crear_sesion: programa una sesion de clase de una seccion. Las horas se
+-- reciben en hora del servidor (los clientes convierten con p_obtener_desfase).
+-- ---------------------------------------------------------------------
+create or replace procedure p_crear_sesion (
+    p_id_seccion   in  number,
+    p_hora_inicio  in  timestamp,
+    p_hora_fin     in  timestamp,
+    o_id_sesion    out number
+) is
+    v_n number;
+begin
+    o_id_sesion := null;
+
+    if p_id_seccion is null or p_hora_inicio is null or p_hora_fin is null then
+        raise_application_error(-20001, 'Seccion, hora de inicio y hora de fin son obligatorias');
+    end if;
+    if p_hora_fin <= p_hora_inicio then
+        raise_application_error(-20001, 'La hora de fin debe ser posterior a la de inicio');
+    end if;
+    if p_hora_fin > p_hora_inicio + numtodsinterval(12, 'hour') then
+        raise_application_error(-20001, 'Una sesion no puede durar mas de 12 horas');
+    end if;
+
+    select count(*) into v_n from secciones where id_seccion = p_id_seccion;
+    if v_n = 0 then
+        raise_application_error(-20002, 'La seccion ' || p_id_seccion || ' no existe');
+    end if;
+
+    -- no se repite una sesion que empieza a la misma hora en la misma seccion
+    select count(*)
+      into v_n
+      from sesiones
+     where id_seccion = p_id_seccion
+       and hora_inicio = p_hora_inicio;
+    if v_n > 0 then
+        raise_application_error(-20005,
+            'La seccion ' || p_id_seccion || ' ya tiene una sesion que empieza a esa hora');
+    end if;
+
+    insert into sesiones (id_seccion, hora_inicio, hora_fin, estado)
+    values (p_id_seccion, p_hora_inicio, p_hora_fin, 'programada')
+    returning id_sesion into o_id_sesion;
+
+    commit;
+exception
+    when others then
+        rollback;
+        o_id_sesion := null;
+        if sqlcode between -20999 and -20000 then
+            raise;
+        end if;
+        raise_application_error(-20099, 'p_crear_sesion: ' || sqlerrm);
+end p_crear_sesion;
+/
+
+-- ---------------------------------------------------------------------
+-- p_cancelar_sesion: elimina una sesion PROGRAMADA que todavia no tiene
+-- asistencias (corrige una sesion programada por error).
+-- ---------------------------------------------------------------------
+create or replace procedure p_cancelar_sesion (
+    p_id_sesion in number
+) is
+    v_estado sesiones.estado%type;
+    v_n      number;
+begin
+    if p_id_sesion is null then
+        raise_application_error(-20001, 'La sesion es obligatoria');
+    end if;
+
+    begin
+        select estado into v_estado
+          from sesiones
+         where id_sesion = p_id_sesion
+           for update;
+    exception
+        when no_data_found then
+            raise_application_error(-20002, 'La sesion ' || p_id_sesion || ' no existe');
+    end;
+    if v_estado <> 'programada' then
+        raise_application_error(-20003,
+            'Solo se pueden cancelar sesiones programadas; la sesion ' || p_id_sesion
+            || ' esta ' || v_estado);
+    end if;
+
+    select count(*) into v_n from asistencias where id_sesion = p_id_sesion;
+    if v_n > 0 then
+        raise_application_error(-20003,
+            'La sesion ' || p_id_sesion || ' ya tiene asistencias registradas');
+    end if;
+
+    delete from sesiones where id_sesion = p_id_sesion;
+    commit;
+exception
+    when others then
+        rollback;
+        if sqlcode between -20999 and -20000 then
+            raise;
+        end if;
+        raise_application_error(-20099, 'p_cancelar_sesion: ' || sqlerrm);
+end p_cancelar_sesion;
 /
 
 -- ---------------------------------------------------------------------
@@ -1099,13 +1222,16 @@ exception
 end p_eliminar_persona;
 /
 
+-- La fecha de registro se devuelve en hora local (ZONA_HORARIA).
 create or replace procedure p_listar_personas (
     o_cursor out sys_refcursor
 ) is
+    v_off interval day to second;
 begin
+    v_off := numtodsinterval(f_desfase * 1440, 'minute');
     open o_cursor for
         select p.id_persona, p.codigo, p.nombre, p.dni, p.correo, p.tipo, p.estado,
-               p.fecha_registro,
+               p.fecha_registro - v_off as fecha_registro,
                e.nombre   as escuela,
                s.ciclo,
                d.especialidad
@@ -1128,10 +1254,12 @@ create or replace procedure p_buscar_personas (
     o_cursor  out sys_refcursor
 ) is
     v_texto varchar2(102) := '%' || lower(trim(p_texto)) || '%';
+    v_off   interval day to second;
 begin
+    v_off := numtodsinterval(f_desfase * 1440, 'minute');
     open o_cursor for
         select p.id_persona, p.codigo, p.nombre, p.dni, p.correo, p.tipo, p.estado,
-               p.fecha_registro,
+               p.fecha_registro - v_off as fecha_registro,
                e.nombre   as escuela,
                s.ciclo,
                d.especialidad

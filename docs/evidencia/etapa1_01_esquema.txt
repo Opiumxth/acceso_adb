@@ -77,6 +77,12 @@ Index created.
 Index created.
 
 
+Function created.
+
+
+Function created.
+
+
 === Tablas creadas y su tablespace ===
 
 TABLE_NAME	     TABLESPACE_NAME
@@ -122,6 +128,19 @@ IX_RESTRIC_PERSONA_ESTADO      RESTRICCIONES	    TS_ACCESO_IDX
 IX_SESIONES_SECCION_INICIO     SESIONES 	    TS_ACCESO_IDX
 
 8 rows selected.
+
+
+=== Funciones de apoyo ===
+
+OBJECT_NAME	     OBJECT_TYPE	     STATUS
+-------------------- ----------------------- -------
+F_DESFASE	     FUNCTION		     VALID
+F_HOY_LOCAL	     FUNCTION		     VALID
+
+
+=== Errores de compilacion (debe salir vacio) ===
+
+no rows selected
 
 
 Commit complete.

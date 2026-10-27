@@ -19,9 +19,12 @@ whenever sqlerror continue
 --   rol_punto_control : p_verificar_persona, p_registrar_acceso y
 --                       p_obtener_parametro (el punto lee UMBRAL_LBPH)
 --   rol_vigilante     : lo anterior + pases, restricciones, incidencias,
---                       p_buscar_personas (para elegir visitante y anfitrion)
---                       y los reportes de seguridad
---   rol_docente       : reportes de asistencia
+--                       p_buscar_personas (para elegir visitante y anfitrion),
+--                       los reportes de seguridad y las consultas del panel
+--                       (resumen del dia, bitacora de accesos, zonas,
+--                       restricciones vigentes y p_obtener_desfase)
+--   rol_docente       : reportes de asistencia y la lista de secciones y
+--                       sesiones para elegir a cual consultar
 --   rol_admin         : todos los procedimientos y funciones
 --
 -- Es re-ejecutable: primero se revocan todos los privilegios de objeto de
@@ -65,6 +68,11 @@ grant execute on r_accesos_denegados     to rol_vigilante;
 grant execute on r_incidencias           to rol_vigilante;
 grant execute on r_pases_vigentes        to rol_vigilante;
 grant execute on r_flujo_por_hora        to rol_vigilante;
+grant execute on p_obtener_desfase       to rol_vigilante;
+grant execute on r_resumen_hoy           to rol_vigilante;
+grant execute on r_accesos_bitacora      to rol_vigilante;
+grant execute on r_zonas                 to rol_vigilante;
+grant execute on r_restricciones         to rol_vigilante;
 
 -- ---------------------------------------------------------------------
 -- 4. rol_docente
@@ -73,6 +81,8 @@ grant execute on r_asistencia_seccion to rol_docente;
 grant execute on r_asistencia_sesion  to rol_docente;
 grant execute on r_alumnos_en_riesgo  to rol_docente;
 grant execute on r_ranking_tardanzas  to rol_docente;
+grant execute on r_secciones          to rol_docente;
+grant execute on r_sesiones           to rol_docente;
 
 -- ---------------------------------------------------------------------
 -- 5. rol_admin: todos los procedimientos y funciones del esquema

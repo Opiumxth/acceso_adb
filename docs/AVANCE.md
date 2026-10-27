@@ -230,3 +230,21 @@ Bitácora generada por los triggers (9 filas): `U_ADMIN` hizo 2 `INSERT`, 2 `UPD
 ### Evidencia
 
 - `docs/evidencia/permisos.txt`
+
+---
+
+## Etapa 5 - Resumen para el profesor (completada)
+
+### Qué se hizo
+
+`docs/RESUMEN.md`: descripción del sistema en una frase, diagrama ER, procedimientos y reglas, reportes, roles, permisos y tablespaces, evidencia de las pruebas, cómo reproducir y pendientes.
+
+### Cómo se verificó
+
+- El diagrama `erDiagram` incluye las 18 tablas y 24 relaciones. Las relaciones se sacaron de las claves foráneas reales de la base (`user_constraints`), no de memoria: 24 claves foráneas, 18 primarias, 7 únicas, 29 checks con nombre y 8 índices secundarios.
+- La sintaxis mermaid se validó con el parser oficial (`mermaid` 11.4.1 con `jsdom`, instalado en un directorio temporal fuera del repositorio): el bloque se reconoce como diagrama `er`. Un control negativo con un diagrama roto a propósito sí falla, así que la validación no es vacía.
+- Las cifras de tablespaces (50/500, 50/500 y 30/200 MB) y de objetos (15 procedimientos `p_*`, 9 reportes `r_*`, 2 funciones, 2 triggers) salen de consultas al diccionario de datos.
+
+### Estado
+
+El resumen describe lo hecho hasta la Etapa 4 y lista los límites conocidos. Se actualizará al terminar las Etapas 6 y 7 (Python y panel web).

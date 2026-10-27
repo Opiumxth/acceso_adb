@@ -9,8 +9,10 @@ whenever sqlerror exit failure rollback
 -- constraints, indices y secuencias de identity). Ejecutar como
 -- ACCESO_OWNER. Despues se vuelve a cargar con 01 y 02.
 --
--- No borra procedimientos, triggers ni permisos: los scripts 03 a 06 usan
--- create or replace y se pueden volver a ejecutar.
+-- No borra procedimientos ni los permisos EXECUTE de los roles. Los triggers
+-- se eliminan junto con sus tablas: despues de recargar 01 y 02 hay que
+-- volver a ejecutar 05_triggers.sql (03, 04 y 06 usan create or replace o
+-- revocan y otorgan de nuevo, y se pueden repetir sin problema).
 -- =====================================================================
 begin
     for t in (select table_name

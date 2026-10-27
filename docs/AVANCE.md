@@ -176,3 +176,57 @@ Se ejecutó sobre el estado que dejó `test_03` (sesiones 900 y 901 cerradas, ac
 ### Evidencia
 
 - `docs/evidencia/reportes.txt`
+
+---
+
+## Etapa 4 - Triggers de auditoría y permisos por rol (completada)
+
+### Qué se hizo
+
+| Archivo | Contenido |
+|---|---|
+| `sql/05_triggers.sql` | `trg_aud_personas` y `trg_aud_restricciones`: cada `INSERT`, `UPDATE` o `DELETE` deja una fila en `auditoria` (tabla, operación, usuario, fecha, detalle). En los `UPDATE` el detalle lista solo los campos que cambiaron (`campo: [antes] -> [después]`) y no se registra nada si no cambió ningún campo auditado. |
+| `sql/06_permisos.sql` | Revoca todo lo otorgado antes a los cuatro roles y vuelve a otorgar solo `EXECUTE` sobre procedimientos. Imprime la matriz de permisos y comprueba que los roles tienen 0 privilegios sobre tablas y ninguno distinto de `EXECUTE`. |
+| `sql/test_05_06.sql` | Abre una sesión por cada usuario de aplicación (`u_punto`, `u_docente`, `u_vigilante`, `u_admin`) y por último `acceso_owner` para leer la bitácora. |
+
+### Matriz de permisos (EXECUTE)
+
+| Objeto | punto_control | vigilante | docente | admin |
+|---|:-:|:-:|:-:|:-:|
+| `p_verificar_persona`, `p_registrar_acceso`, `p_obtener_parametro` | X | X | | X |
+| `p_buscar_personas` | | X | | X |
+| `p_emitir_pase`, `p_revocar_pase` | | X | | X |
+| `p_registrar_restriccion`, `p_levantar_restriccion` | | X | | X |
+| `p_registrar_incidencia`, `p_resolver_incidencia` | | X | | X |
+| `r_accesos_denegados`, `r_incidencias`, `r_pases_vigentes`, `r_flujo_por_hora` | | X | | X |
+| `r_asistencia_seccion`, `r_asistencia_sesion`, `r_alumnos_en_riesgo`, `r_ranking_tardanzas` | | | X | X |
+| `p_registrar_persona`, `p_modificar_persona`, `p_eliminar_persona`, `p_listar_personas`, `p_cerrar_sesion`, `r_uso_aulas_vs_sesiones`, `f_parametro`, `f_parametro_num` | | | | X |
+
+### Decisiones tomadas
+
+1. **`p_obtener_parametro` para el punto de control**: el punto de acceso debe leer `UMBRAL_LBPH` de la tabla `parametros` sin tener acceso a la tabla, así que se le dio ese procedimiento además de los dos pedidos.
+2. **`p_buscar_personas` para el vigilante**: necesita encontrar al visitante y al anfitrión para emitir un pase. Es solo lectura.
+3. **Cerrar sesiones queda solo para el administrador.** La especificación da al docente únicamente reportes. Para que el docente cierre sus sesiones habría que validar que la sesión sea de una sección suya dentro del procedimiento (queda como pendiente).
+4. El trigger registra `SESSION_USER`, es decir, la persona que inició sesión (`U_ADMIN`, `U_VIGILANTE`...) aunque el cambio lo haga un procedimiento del esquema dueño. La fila de auditoría va en la misma transacción que el cambio: si el procedimiento hace `rollback`, la auditoría también se deshace.
+5. Los triggers se eliminan junto con sus tablas, así que después de `99_reset.sql` + `01` + `02` hay que volver a ejecutar `05_triggers.sql`. Orden completo de carga: `00, 01, 02, 03, 04, 05, 06`.
+6. `test_03` y `test_04` se ejecutaron antes de crear los triggers, por eso la bitácora solo contiene lo que hizo `test_05_06`.
+
+### Resultado de `sql/test_05_06.sql`
+
+| Usuario | Prueba | Resultado |
+|---|---|---|
+| `u_punto` | `select` e `insert` directos sobre `accesos`; `select` sobre `personas` y `parametros` | `ORA-00942` (4 casos) |
+| `u_punto` | `p_verificar_persona('90000001')`, `p_registrar_acceso`, `p_obtener_parametro('UMBRAL_LBPH')` | funcionan: Ricardo Salas Medina existe, acceso `permitido`, umbral `40` |
+| `u_punto` | `p_cerrar_sesion`, `p_registrar_persona`, `r_incidencias` | `PLS-00201` (no tiene permiso) |
+| `u_docente` | `r_asistencia_seccion(1)`, `r_alumnos_en_riesgo(2)` | funcionan |
+| `u_docente` | `p_registrar_acceso`, `r_accesos_denegados`; `select` sobre `inscripciones` | `PLS-00201`, `PLS-00201`, `ORA-00942` |
+| `u_vigilante` | `p_registrar_acceso`, emitir y revocar un pase, registrar y resolver una incidencia, registrar y levantar una restricción, `r_accesos_denegados` | funcionan |
+| `u_vigilante` | `p_registrar_persona`, `r_asistencia_seccion`; `select` sobre `pases` | `PLS-00201`, `PLS-00201`, `ORA-00942` |
+| `u_admin` | alta, modificación, restricción y baja lógica de la persona 88000001; alta y eliminación física de la 88000002; `p_buscar_personas`, `r_pases_vigentes` | funcionan (`baja_logica` y `eliminada`) |
+| `u_admin` | `select` directo sobre `auditoria` | `ORA-00942`: ni el administrador toca las tablas |
+
+Bitácora generada por los triggers (9 filas): `U_ADMIN` hizo 2 `INSERT`, 2 `UPDATE` y 1 `DELETE` sobre `PERSONAS` y 1 `INSERT` y 1 `UPDATE` sobre `RESTRICCIONES`; `U_VIGILANTE` hizo 1 `INSERT` y 1 `UPDATE` sobre `RESTRICCIONES`. En total aparecen 7 errores `ORA-00942` y 7 `PLS-00201`, todos esperados.
+
+### Evidencia
+
+- `docs/evidencia/permisos.txt`

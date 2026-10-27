@@ -1,0 +1,278 @@
+
+=====================================================================
+1. u_punto (rol_punto_control)
+=====================================================================
+USER is "U_PUNTO"
+
+USUARIO        ESQUEMA_ACTUAL
+-------------- --------------
+U_PUNTO        ACCESO_OWNER
+-- 1.1 SELECT directo sobre accesos: debe FALLAR (ORA-00942)
+select count(*) from accesos
+                     *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+
+-- 1.2 INSERT directo sobre accesos: debe FALLAR (ORA-00942)
+insert into accesos (codigo_leido, id_punto, resultado) values ('00000000', 1, 'permitido')
+            *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+
+-- 1.3 SELECT sobre personas y parametros: deben FALLAR (ORA-00942)
+select count(*) from personas
+                     *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+
+select count(*) from parametros
+                     *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+
+-- 1.4 p_verificar_persona funciona
+
+NOMBRE			 TIPO	      ESTADO	     EXISTE
+------------------------ ------------ ---------- ----------
+Ricardo Salas Medina	 vigilante    activo		  1
+-- 1.5 p_registrar_acceso funciona (vigilante 90000001 en la puerta, ventana 00:00-23:59)
+
+RESULTADO  MOTIVO		   ID_ACCESO
+---------- ---------------------- ----------
+permitido  -				1519
+-- 1.6 p_obtener_parametro funciona (el punto lee el umbral LBPH)
+
+UMBRAL
+--------
+40
+-- 1.7 procedimientos que no le corresponden: deben FALLAR (PLS-00201)
+BEGIN p_cerrar_sesion(900, :f, :i); END;
+
+      *
+ERROR at line 1:
+ORA-06550: line 1, column 7:
+PLS-00201: identifier 'P_CERRAR_SESION' must be declared
+ORA-06550: line 1, column 7:
+PL/SQL: Statement ignored
+
+
+BEGIN p_registrar_persona('88000009', 'No Debe Crearse', '88000009', null, 'visitante', null, null, null, :ip); END;
+
+      *
+ERROR at line 1:
+ORA-06550: line 1, column 7:
+PLS-00201: identifier 'P_REGISTRAR_PERSONA' must be declared
+ORA-06550: line 1, column 7:
+PL/SQL: Statement ignored
+
+
+BEGIN r_incidencias(null, null, :c); END;
+
+      *
+ERROR at line 1:
+ORA-06550: line 1, column 7:
+PLS-00201: identifier 'R_INCIDENCIAS' must be declared
+ORA-06550: line 1, column 7:
+PL/SQL: Statement ignored
+
+
+
+=====================================================================
+2. u_docente (rol_docente)
+=====================================================================
+USER is "U_DOCENTE"
+-- 2.1 r_asistencia_seccion(1) funciona
+
+CODIGO	  NOMBRE		    PRESENTES  TARDANZAS     FALTAS SESIONES_CERRADAS PCT_ASISTENCIA ESTADO_INSCR
+--------- ------------------------ ---------- ---------- ---------- ----------------- -------------- ------------
+25200001  Ana Torres Quispe		    6	       1	  1		    8		87.5 activa
+25200002  Luis Ramirez Huaman		    6	       1	  1		    8		87.5 activa
+25200003  Maria Gomez Flores		    6	       0	  2		    8		  75 activa
+25200004  Diego Castillo Rojas		    2	       1	  3		    8		37.5 inhabilitado
+25200005  Sofia Herrera Diaz		    3	       2	  3		    8		62.5 inhabilitado
+25200006  Pedro Vargas Leon		    5	       1	  2		    8		  75 activa
+-- 2.2 r_alumnos_en_riesgo(2) funciona
+
+ID_SECCION CURSO    GRUPO CODIGO    NOMBRE			 FALTAS SESIONES_CERRADAS PCT_FALTAS LIMITE_PCT NIVEL
+---------- -------- ----- --------- ------------------------ ---------- ----------------- ---------- ---------- -------------
+	 2 SIS302   A	  25200007  Valeria Ortiz Mejia 	      1 		6	16.7	     30 en_riesgo
+-- 2.3 p_registrar_acceso: debe FALLAR (PLS-00201)
+BEGIN p_registrar_acceso('25200001', 1, 1, 20, 'simulado', :r, :m, :id); END;
+
+      *
+ERROR at line 1:
+ORA-06550: line 1, column 7:
+PLS-00201: identifier 'P_REGISTRAR_ACCESO' must be declared
+ORA-06550: line 1, column 7:
+PL/SQL: Statement ignored
+
+
+-- 2.4 reporte de seguridad r_accesos_denegados: debe FALLAR (PLS-00201)
+BEGIN r_accesos_denegados(null, null, :c); END;
+
+      *
+ERROR at line 1:
+ORA-06550: line 1, column 7:
+PLS-00201: identifier 'R_ACCESOS_DENEGADOS' must be declared
+ORA-06550: line 1, column 7:
+PL/SQL: Statement ignored
+
+
+-- 2.5 SELECT directo sobre inscripciones: debe FALLAR (ORA-00942)
+select count(*) from inscripciones
+                     *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+
+
+=====================================================================
+3. u_vigilante (rol_vigilante)
+=====================================================================
+USER is "U_VIGILANTE"
+-- 3.1 p_registrar_acceso funciona
+
+RESULTADO  MOTIVO		   ID_ACCESO
+---------- ---------------------- ----------
+permitido  -				1520
+-- 3.2 pases: emitir para el visitante 31 (zona 2) y revocarlo
+
+   ID_PASE
+----------
+      1003
+-- 3.3 incidencias: registrar y resolver
+
+ID_INCIDENCIA
+-------------
+	 1009
+-- 3.3b restricciones: registrar y levantar una al visitante 31 (queda en la auditoria como U_VIGILANTE)
+-- 3.4 reporte de seguridad r_accesos_denegados de hoy funciona
+
+MOTIVO		       ZONA		      TOTAL CODIGOS_DISTINTOS PRIMERO	       ULTIMO
+---------------------- ---------------------- ----- ----------------- ---------------- ----------------
+codigo_inexistente     Puerta Principal 	  5		    2 2026-10-27 19:19 2026-10-27 19:19
+codigo_inexistente     Subtotal del motivo	  5		    2 2026-10-27 19:19 2026-10-27 19:19
+fuera_de_horario       Puerta Principal 	  1		    1 2026-10-27 19:19 2026-10-27 19:19
+fuera_de_horario       Subtotal del motivo	  1		    1 2026-10-27 19:19 2026-10-27 19:19
+persona_inactiva       Puerta Principal 	  2		    2 2026-10-27 19:19 2026-10-27 19:19
+persona_inactiva       Subtotal del motivo	  2		    2 2026-10-27 19:19 2026-10-27 19:19
+persona_restringida    Puerta Principal 	  2		    2 2026-10-27 19:19 2026-10-27 19:19
+persona_restringida    Subtotal del motivo	  2		    2 2026-10-27 19:19 2026-10-27 19:19
+rostro_no_coincide     Puerta Principal 	  1		    1 2026-10-27 19:19 2026-10-27 19:19
+rostro_no_coincide     Subtotal del motivo	  1		    1 2026-10-27 19:19 2026-10-27 19:19
+sin_pase_vigente       Aula A-101		  2		    2 2026-10-27 19:19 2026-10-27 19:19
+sin_pase_vigente       Puerta Principal 	  1		    1 2026-10-27 19:19 2026-10-27 19:19
+sin_pase_vigente       Subtotal del motivo	  3		    2 2026-10-27 19:19 2026-10-27 19:19
+zona_no_autorizada     Oficina de Administrac	  1		    1 2026-10-27 19:19 2026-10-27 19:19
+		       ion
+
+zona_no_autorizada     Subtotal del motivo	  1		    1 2026-10-27 19:19 2026-10-27 19:19
+TOTAL GENERAL	       -			 15		    9 2026-10-27 19:19 2026-10-27 19:19
+-- 3.5 lo que no le corresponde: PLS-00201, PLS-00201 y ORA-00942
+BEGIN p_registrar_persona('88000009', 'No Debe Crearse', '88000009', null, 'visitante', null, null, null, :ip); END;
+
+      *
+ERROR at line 1:
+ORA-06550: line 1, column 7:
+PLS-00201: identifier 'P_REGISTRAR_PERSONA' must be declared
+ORA-06550: line 1, column 7:
+PL/SQL: Statement ignored
+
+
+BEGIN r_asistencia_seccion(1, :c); END;
+
+      *
+ERROR at line 1:
+ORA-06550: line 1, column 7:
+PLS-00201: identifier 'R_ASISTENCIA_SECCION' must be declared
+ORA-06550: line 1, column 7:
+PL/SQL: Statement ignored
+
+
+select count(*) from pases
+                     *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+
+
+=====================================================================
+4. u_admin (rol_admin)
+=====================================================================
+USER is "U_ADMIN"
+-- 4.1 persona 88000001: alta, modificacion, restriccion, levantarla y baja logica
+
+ACCION_88000001
+--------------------------------
+baja_logica
+-- 4.2 persona 88000002 sin historial: alta y eliminacion fisica
+
+ACCION_88000002
+--------------------------------
+eliminada
+-- 4.3 reportes y listados funcionan
+
+ID_PERSONA CODIGO    NOMBRE		      DNI      CORREO												    TIPO	 ESTADO
+---------- --------- ------------------------ -------- ---------------------------------------------------------------------------------------------------- ------------ ----------
+FECHA_REGISTRO								    ESCUELA												      CICLO
+--------------------------------------------------------------------------- ---------------------------------------------------------------------------------------------------- ----------
+ESPECIALIDAD
+----------------------------------------------------------------------------------------------------
+      1002 88000001  Auditoria Prueba Uno Mod 88000001 aud1.nuevo@campus.test										    visitante	 inactivo
+		     ificada
+27-OCT-26 07.26.38.319241 PM
+
+
+
+   ID_PASE CODIGO_V VISITANTE
+---------- -------- ----------------------------------------------------------------------------------------------------
+ANFITRION											     ZONA_DESTINO								      DESDE
+---------------------------------------------------------------------------------------------------- -------------------------------------------------------------------------------- ----------------
+HASTA		 HORAS_RESTANTES MOTIVO
+---------------- --------------- ----------------------
+      1000 99000001 Elena Paz Cardenas
+Carlos Mendoza Rios										     Biblioteca Central 							      2026-10-27 18:19
+2026-10-28 19:19	    23.9 Consulta bibliografica
+				  para investigacion
+
+-- 4.4 aun siendo administrador no tiene acceso directo a las tablas (ORA-00942)
+select count(*) from auditoria
+                     *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+
+
+=====================================================================
+5. ACCESO_OWNER: bitacora de auditoria generada por los triggers
+=====================================================================
+
+ID_AUDITORIA TABLA	    OPERACION USUARIO	     HORA      DETALLE
+------------ -------------- --------- -------------- --------- ---------------------------------------------------------------------------------------------------------
+	1000 RESTRICCIONES  INSERT    U_VIGILANTE    19:26:38  id_restriccion=1002 persona=31 estado=vigente fecha_fin= motivo=Prueba de permisos del vigilante
+	1001 RESTRICCIONES  UPDATE    U_VIGILANTE    19:26:38  id_restriccion=1002 persona=31 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-27 19:26]
+	1002 PERSONAS	    INSERT    U_ADMIN	     19:26:38  id=1002 codigo=88000001 tipo=visitante estado=activo nombre=Auditoria Prueba Uno
+	1003 PERSONAS	    UPDATE    U_ADMIN	     19:26:38  id=1002 codigo=88000001 | nombre: [Auditoria Prueba Uno] -> [Auditoria Prueba Uno Modificada] correo:
+							       [aud1@campus.test] -> [aud1.nuevo@campus.test]
+
+	1004 RESTRICCIONES  INSERT    U_ADMIN	     19:26:38  id_restriccion=1003 persona=1002 estado=vigente fecha_fin= motivo=Prueba de auditoria
+	1005 RESTRICCIONES  UPDATE    U_ADMIN	     19:26:38  id_restriccion=1003 persona=1002 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-27 19:26]
+	1006 PERSONAS	    UPDATE    U_ADMIN	     19:26:38  id=1002 codigo=88000001 | estado: [activo] -> [inactivo]
+	1007 PERSONAS	    INSERT    U_ADMIN	     19:26:38  id=1003 codigo=88000002 tipo=visitante estado=activo nombre=Auditoria Prueba Dos
+	1008 PERSONAS	    DELETE    U_ADMIN	     19:26:38  id=1003 codigo=88000002 tipo=visitante estado=activo nombre=Auditoria Prueba Dos
+
+Resumen por usuario y operacion
+
+USUARIO        TABLA	      OPERACION TOTAL
+-------------- -------------- --------- -----
+U_ADMIN        PERSONAS       DELETE	    1
+U_ADMIN        PERSONAS       INSERT	    2
+U_ADMIN        PERSONAS       UPDATE	    2
+U_ADMIN        RESTRICCIONES  INSERT	    1
+U_ADMIN        RESTRICCIONES  UPDATE	    1
+U_VIGILANTE    RESTRICCIONES  INSERT	    1
+U_VIGILANTE    RESTRICCIONES  UPDATE	    1

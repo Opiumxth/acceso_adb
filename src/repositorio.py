@@ -26,7 +26,6 @@ class ResultadoAcceso:
     motivo: object          # motivo de la denegacion; None si fue permitido
     id_acceso: int
 
-
 def _traduce(funcion):
     """Convierte los errores ORA-200xx de un procedimiento en db.ErrorAplicacion."""
     @functools.wraps(funcion)
@@ -43,10 +42,7 @@ def _traduce(funcion):
 
 _PATRON_PROC = re.compile(r"^[pr]_[a-z0-9_]+$")
 
-
-# ---------------------------------------------------------------------
 # Punto de acceso
-# ---------------------------------------------------------------------
 @_traduce
 def verificar_persona(conn, codigo):
     """p_verificar_persona: devuelve Persona o None si el codigo no existe."""

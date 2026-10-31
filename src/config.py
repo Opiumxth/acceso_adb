@@ -37,21 +37,15 @@ def cargar_env(ruta=ENV_FILE):
             valor = valor[1:-1]
         os.environ.setdefault(clave, valor)
 
-
 cargar_env()
-
 
 def _entero(nombre, defecto):
     return int(os.environ.get(nombre, defecto))
 
-
 def _decimal(nombre, defecto):
     return float(os.environ.get(nombre, defecto))
 
-
-# ---------------------------------------------------------------------
 # Oracle
-# ---------------------------------------------------------------------
 ORACLE_DSN = os.environ.get("ORACLE_DSN", "localhost:1521/XEPDB1")
 ORACLE_SCHEMA = os.environ.get("ORACLE_SCHEMA", "ACCESO_OWNER")
 
@@ -64,7 +58,6 @@ USUARIOS_POR_DEFECTO = {
     "admin": "u_admin",
 }
 
-
 def credenciales(rol):
     """Devuelve (usuario, clave) del rol. La clave puede ser None si no esta definida."""
     if rol not in ROLES:
@@ -73,31 +66,22 @@ def credenciales(rol):
     clave = os.environ.get(f"DB_PASSWORD_{rol.upper()}") or None
     return usuario, clave
 
-
-# ---------------------------------------------------------------------
 # Datos biometricos en disco (no se versionan: datos/ esta en .gitignore)
-# ---------------------------------------------------------------------
 DATOS_DIR = Path(os.environ.get("DATOS_DIR", BASE_DIR / "datos")).resolve()
 ROSTROS_DIR = DATOS_DIR / "faces"       # fotos de rostro: faces/<codigo>/
 MODELOS_DIR = DATOS_DIR / "models"      # modelo LBPH: models/modelo_lbph_<codigo>.yml
 QR_DIR = DATOS_DIR / "qrcodes"          # imagenes QR: qrcodes/qr_<codigo>.png
 
-
 def ruta_rostros(codigo):
     return ROSTROS_DIR / str(codigo)
-
 
 def ruta_modelo(codigo):
     return MODELOS_DIR / f"modelo_lbph_{codigo}.yml"
 
-
 def ruta_qr(codigo):
     return QR_DIR / f"qr_{codigo}.png"
 
-
-# ---------------------------------------------------------------------
 # Punto de acceso y camara
-# ---------------------------------------------------------------------
 ID_PUNTO = _entero("ID_PUNTO", 1)                              # punto de control de este equipo
 CAMERA_INDEX = _entero("CAMERA_INDEX", 0)
 QR_TIMEOUT = _decimal("QR_TIMEOUT_SEGUNDOS", 30)               # espera maxima del QR

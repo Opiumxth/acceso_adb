@@ -5,33 +5,29 @@ set linesize 220
 set pagesize 100
 whenever sqlerror continue
 
--- =====================================================================
 -- 04_reportes.sql
 -- Reportes estructurados: procedimientos r_* que devuelven un SYS_REFCURSOR
 -- como ultimo parametro (o_cursor). El cliente abre, recorre y cierra el
 -- cursor. Propietario: ACCESO_OWNER.
 --   docker cp sql/04_reportes.sql oracle-xe:/tmp/04_reportes.sql
 --   docker exec -i oracle-xe sqlplus -s 'acceso_owner/"Owner#2026"@XEPDB1' @/tmp/04_reportes.sql
---
+
 -- Uso desde SQL*Plus:
 --   variable c refcursor
 --   exec r_asistencia_seccion(1, :c)
 --   print c
---
+
 -- Errores: -20001 entrada invalida, -20002 registro inexistente,
 -- -20099 error inesperado. Las fechas desde/hasta son inclusivas y un valor
 -- nulo significa "sin limite".
---
+
 -- HORA LOCAL: las marcas de tiempo estan guardadas en hora del servidor. Los
 -- reportes interpretan las fechas que reciben como dias de la hora local
 -- (parametro ZONA_HORARIA) y muestran las horas en hora local. f_desfase (01)
 -- da la diferencia servidor - local en dias.
--- =====================================================================
 
--- ---------------------------------------------------------------------
 -- r_asistencia_seccion: resumen de asistencia por estudiante de una seccion
 -- (solo sesiones cerradas)
--- ---------------------------------------------------------------------
 create or replace procedure r_asistencia_seccion (
     p_id_seccion in  number,
     o_cursor     out sys_refcursor
@@ -80,10 +76,8 @@ exception
 end r_asistencia_seccion;
 /
 
--- ---------------------------------------------------------------------
 -- r_asistencia_sesion: detalle de una sesion (un registro por inscrito);
 -- la hora de registro se muestra en hora local
--- ---------------------------------------------------------------------
 create or replace procedure r_asistencia_sesion (
     p_id_sesion in  number,
     o_cursor    out sys_refcursor
@@ -125,11 +119,9 @@ exception
 end r_asistencia_sesion;
 /
 
--- ---------------------------------------------------------------------
 -- r_alumnos_en_riesgo: estudiantes inhabilitados o a una falta de serlo
 -- (nivel = en_riesgo cuando (faltas + 1) * 100 / sesiones cerradas alcanza
 -- LIMITE_FALTAS_PCT). p_id_seccion nulo = todas las secciones.
--- ---------------------------------------------------------------------
 create or replace procedure r_alumnos_en_riesgo (
     p_id_seccion in  number,
     o_cursor     out sys_refcursor
@@ -183,10 +175,8 @@ exception
 end r_alumnos_en_riesgo;
 /
 
--- ---------------------------------------------------------------------
 -- r_ranking_tardanzas: estudiantes con mas tardanzas entre dos fechas
 -- (dias de la hora local, segun el inicio de la sesion), con RANK()
--- ---------------------------------------------------------------------
 create or replace procedure r_ranking_tardanzas (
     p_desde  in  date,
     p_hasta  in  date,
@@ -236,10 +226,8 @@ exception
 end r_ranking_tardanzas;
 /
 
--- ---------------------------------------------------------------------
 -- r_accesos_denegados: denegados agrupados por motivo y zona, con subtotal
 -- por motivo y total general (GROUP BY ROLLUP). Fechas = dias de hora local.
--- ---------------------------------------------------------------------
 create or replace procedure r_accesos_denegados (
     p_desde  in  date,
     p_hasta  in  date,
@@ -286,10 +274,8 @@ exception
 end r_accesos_denegados;
 /
 
--- ---------------------------------------------------------------------
 -- r_incidencias: filtros opcionales por estado y gravedad; las mas graves
 -- primero. La fecha se muestra en hora local.
--- ---------------------------------------------------------------------
 create or replace procedure r_incidencias (
     p_estado   in  varchar2,
     p_gravedad in  varchar2,
@@ -333,10 +319,8 @@ exception
 end r_incidencias;
 /
 
--- ---------------------------------------------------------------------
 -- r_pases_vigentes: pases activos y dentro de su vigencia ahora; las horas
 -- se muestran en hora local
--- ---------------------------------------------------------------------
 create or replace procedure r_pases_vigentes (
     o_cursor out sys_refcursor
 ) is
@@ -369,11 +353,9 @@ exception
 end r_pases_vigentes;
 /
 
--- ---------------------------------------------------------------------
 -- r_uso_aulas_vs_sesiones: para una fecha (dia de la hora local), compara
 -- por aula/laboratorio las sesiones programadas con el uso real (accesos
 -- permitidos y asistentes). p_fecha nula = hoy.
--- ---------------------------------------------------------------------
 create or replace procedure r_uso_aulas_vs_sesiones (
     p_fecha  in  date,
     o_cursor out sys_refcursor
@@ -460,11 +442,9 @@ exception
 end r_uso_aulas_vs_sesiones;
 /
 
--- ---------------------------------------------------------------------
 -- r_flujo_por_hora: las 24 horas (locales) de una fecha con permitidos,
 -- denegados, entradas y salidas segun el sentido del punto. p_fecha nula =
 -- hoy; p_id_zona nulo = todas las zonas.
--- ---------------------------------------------------------------------
 create or replace procedure r_flujo_por_hora (
     p_fecha    in  date,
     p_id_zona  in  number,
@@ -515,11 +495,9 @@ exception
 end r_flujo_por_hora;
 /
 
--- =====================================================================
 -- Catalogos y consultas para el panel web (los roles no leen tablas, asi
 -- que las listas desplegables y las pantallas tambien salen de
 -- procedimientos)
--- =====================================================================
 
 -- r_escuelas: catalogo para listas desplegables
 create or replace procedure r_escuelas (
@@ -776,9 +754,7 @@ exception
 end r_accesos_bitacora;
 /
 
--- ---------------------------------------------------------------------
 -- Verificacion de compilacion (no debe listar errores)
--- ---------------------------------------------------------------------
 prompt
 prompt === Errores de compilacion (debe salir vacio) ===
 column name format a28

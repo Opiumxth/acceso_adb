@@ -50,14 +50,12 @@ AVISOS_ROSTRO = {
     "cancelado": "Verificacion de rostro cancelada.",
 }
 
-
 @dataclass
 class LecturaProcesada:
     codigo: str
     persona: Optional[repositorio.Persona]            # None si el codigo no existe
     rostro: Optional[acceder_rostro.ResultadoRostro]  # None si no se llego a verificar
     acceso: repositorio.ResultadoAcceso
-
 
 def procesar_lectura(conn, codigo, id_punto, verificar_rostro, umbral, metodo="qr_rostro"):
     """Procesa un codigo ya leido y devuelve LecturaProcesada.
@@ -199,7 +197,6 @@ def main(argv=None):
         print(f"No se pudo usar la base de datos: {exc}")
         return 5
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -13,10 +13,8 @@ import oracledb
 
 import config
 
-
 class ConfiguracionError(RuntimeError):
     """Falta algun dato de configuracion (por ejemplo la clave del rol)."""
-
 
 class ErrorAplicacion(Exception):
     """Error controlado de un procedimiento (ORA-20001 a ORA-20999).
@@ -28,7 +26,6 @@ class ErrorAplicacion(Exception):
         super().__init__(mensaje)
         self.codigo = codigo
         self.mensaje = mensaje
-
 
 _PATRON_APP = re.compile(r"ORA-(20\d{3}): (.*)")
 _PATRON_ESQUEMA = re.compile(r"^[A-Za-z][A-Za-z0-9_$#]*$")

@@ -6,7 +6,6 @@ set pagesize 100
 set feedback off
 whenever sqlerror exit failure rollback
 
--- =====================================================================
 -- 02_datos.sql
 -- Datos de prueba (ficticios). Ejecutar como ACCESO_OWNER despues de 01.
 --   docker cp sql/02_datos.sql oracle-xe:/tmp/02_datos.sql
@@ -16,11 +15,8 @@ whenever sqlerror exit failure rollback
 -- cargar el mismo dia con 99_reset.sql + 01 + 02. Las horas del dia (clases,
 -- ingresos, denegados) estan pensadas en hora LOCAL (parametro ZONA_HORARIA)
 -- y se guardan en hora del servidor sumando f_desfase.
--- =====================================================================
 
--- ---------------------------------------------------------------------
 -- Parametros del sistema
--- ---------------------------------------------------------------------
 insert into parametros (nombre, valor, descripcion) values
     ('LIMITE_FALTAS_PCT', '30',
      'Porcentaje de faltas (sobre sesiones cerradas) desde el cual se inhabilita al estudiante');

@@ -5,12 +5,11 @@ set linesize 200
 set pagesize 100
 whenever sqlerror continue
 
--- =====================================================================
 -- 03_procedimientos.sql
 -- Procedimientos de la aplicacion (propietario: ACCESO_OWNER).
 --   docker cp sql/03_procedimientos.sql oracle-xe:/tmp/03_procedimientos.sql
 --   docker exec -i oracle-xe sqlplus -s 'acceso_owner/"Owner#2026"@XEPDB1' @/tmp/03_procedimientos.sql
---
+
 -- Convenciones
 --  * Una negacion de acceso NO es un error: se registra en accesos y se
 --    devuelve por parametros OUT (o_resultado, o_motivo, o_id_acceso).
@@ -27,11 +26,8 @@ whenever sqlerror continue
 --    HH24:MI de permisos_zona se evalua en la zona horaria del parametro
 --    ZONA_HORARIA, y los listados que muestran horas (p_listar_personas,
 --    reportes r_*) las devuelven en esa hora local (ver f_desfase en 01).
--- =====================================================================
 
--- ---------------------------------------------------------------------
 -- Auxiliares de parametros
--- ---------------------------------------------------------------------
 create or replace function f_parametro (p_nombre in varchar2) return varchar2 is
     v_valor parametros.valor%type;
 begin
@@ -94,10 +90,8 @@ exception
 end p_obtener_desfase;
 /
 
--- ---------------------------------------------------------------------
 -- 1) p_verificar_persona: reemplaza la busqueda en alumnos.csv
 --    o_existe = 1 si el codigo existe en personas, 0 si no.
--- ---------------------------------------------------------------------
 create or replace procedure p_verificar_persona (
     p_codigo in  varchar2,
     o_nombre out varchar2,
@@ -134,10 +128,8 @@ exception
 end p_verificar_persona;
 /
 
--- ---------------------------------------------------------------------
 -- 2) p_registrar_acceso: una sola transaccion que decide el ingreso,
 --    la asistencia y las incidencias.
---
 --    Reglas en este orden:
 --      a. codigo inexistente              -> codigo_inexistente
 --      b. persona con estado <> activo    -> persona_inactiva
@@ -446,12 +438,10 @@ exception
 end p_registrar_acceso;
 /
 
--- ---------------------------------------------------------------------
 -- 3) p_cerrar_sesion
 --    Cierra la sesion, registra "falta" para cada inscrito activo sin
 --    asistencia (un solo INSERT ... SELECT), suma la falta en inscripciones
 --    e inhabilita si faltas * 100 / sesiones cerradas >= LIMITE_FALTAS_PCT.
--- ---------------------------------------------------------------------
 create or replace procedure p_cerrar_sesion (
     p_id_sesion     in  number,
     o_faltas        out number,
@@ -537,10 +527,8 @@ exception
 end p_cerrar_sesion;
 /
 
--- ---------------------------------------------------------------------
 -- p_crear_sesion: programa una sesion de clase de una seccion. Las horas se
 -- reciben en hora del servidor (los clientes convierten con p_obtener_desfase).
--- ---------------------------------------------------------------------
 create or replace procedure p_crear_sesion (
     p_id_seccion   in  number,
     p_hora_inicio  in  timestamp,
@@ -593,10 +581,8 @@ exception
 end p_crear_sesion;
 /
 
--- ---------------------------------------------------------------------
 -- p_cancelar_sesion: elimina una sesion PROGRAMADA que todavia no tiene
 -- asistencias (corrige una sesion programada por error).
--- ---------------------------------------------------------------------
 create or replace procedure p_cancelar_sesion (
     p_id_sesion in number
 ) is
@@ -640,9 +626,7 @@ exception
 end p_cancelar_sesion;
 /
 
--- ---------------------------------------------------------------------
 -- 4a) Pases de visitantes
--- ---------------------------------------------------------------------
 create or replace procedure p_emitir_pase (
     p_id_visitante    in  number,
     p_id_anfitrion    in  number,
@@ -669,6 +653,7 @@ begin
         raise_application_error(-20001, 'El visitante y el anfitrion deben ser personas distintas');
     end if;
 
+    -- Verificar que la fecha de inicio sea valida
     v_desde := nvl(p_vigente_desde, v_ahora);
     if p_vigente_hasta <= v_desde then
         raise_application_error(-20001, 'vigente_hasta debe ser posterior a vigente_desde');
@@ -765,9 +750,7 @@ exception
 end p_revocar_pase;
 /
 
--- ---------------------------------------------------------------------
 -- 4b) Restricciones
--- ---------------------------------------------------------------------
 create or replace procedure p_registrar_restriccion (
     p_id_persona     in  number,
     p_motivo         in  varchar2,
@@ -862,9 +845,7 @@ exception
 end p_levantar_restriccion;
 /
 
--- ---------------------------------------------------------------------
 -- 4c) Incidencias registradas por el vigilante
--- ---------------------------------------------------------------------
 create or replace procedure p_registrar_incidencia (
     p_id_zona        in  number,
     p_id_persona     in  number,
@@ -979,9 +960,7 @@ exception
 end p_resolver_incidencia;
 /
 
--- ---------------------------------------------------------------------
 -- 4d) CRUD de personas (la clave publica es el codigo del QR)
--- ---------------------------------------------------------------------
 
 -- Inserta en personas y en su subtipo (estudiantes / docentes) en una
 -- sola transaccion.
@@ -1280,9 +1259,7 @@ exception
 end p_buscar_personas;
 /
 
--- ---------------------------------------------------------------------
 -- Verificacion de compilacion (no debe listar errores)
--- ---------------------------------------------------------------------
 prompt
 prompt === Errores de compilacion (debe salir vacio) ===
 column name   format a28

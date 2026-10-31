@@ -12,12 +12,10 @@ import config
 # enorme (DBL_MAX) cuando ninguna distancia pasa el umbral interno del modelo.
 CONFIANZA_MAXIMA = 9999.99
 
-
 class ResultadoRostro(NamedTuple):
     ok: bool                      # True si el rostro coincide con el modelo
     confianza: Optional[float]    # mejor (menor) distancia LBPH observada; None si no hubo rostro
     detalle: str                  # coincide, no_coincide, sin_rostro, sin_modelo, camara, cancelado
-
 
 def _acotar(confianza):
     """Deja la confianza en un rango que cabe en la base de datos."""
@@ -25,7 +23,6 @@ def _acotar(confianza):
     if not math.isfinite(confianza) or confianza > CONFIANZA_MAXIMA:
         return CONFIANZA_MAXIMA
     return confianza
-
 
 def verificar_rostro(codigo, umbral, timeout=None, indice_camara=None,
                      mostrar_ventana=True, captura=None, ruta_modelo=None):

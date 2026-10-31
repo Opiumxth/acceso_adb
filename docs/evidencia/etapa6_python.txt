@@ -1,11 +1,8 @@
 ETAPA 6 - Python del punto de acceso (salida real)
-Fecha del equipo: 2026-10-27 15:56:55   Python 3.12.3
+Fecha del equipo: 2026-10-31 16:06:59   Python 3.12.3
 oracledb 26.1.0 | opencv-contrib-python 4.14.0.94 | zxing-cpp 3.1.1 | qrcode 8.2 | numpy 2.5.4
 
-==================================================================
-1. PRUEBAS AUTOMATICAS (unittest, Oracle real + camara falsa)
-   ./venv/bin/python -m unittest tests.test_etapa6 -v
-==================================================================
+=== 1. PRUEBAS AUTOMATICAS: ./venv/bin/python -m unittest tests.test_etapa6 -v
 test_borrar_archivos_solo_toca_la_carpeta_de_datos (tests.test_etapa6.TestArchivosBiometricos.test_borrar_archivos_solo_toca_la_carpeta_de_datos) ... ok
 test_clave_incorrecta_por_parametro (tests.test_etapa6.TestConexion.test_clave_incorrecta_por_parametro) ... ok
 test_sesion_de_u_punto_con_esquema_del_dueno (tests.test_etapa6.TestConexion.test_sesion_de_u_punto_con_esquema_del_dueno) ... ok
@@ -57,13 +54,11 @@ test_sin_modelo (tests.test_etapa6.TestVerificarRostro.test_sin_modelo) ... ok
 test_sin_rostro_en_la_imagen (tests.test_etapa6.TestVerificarRostro.test_sin_rostro_en_la_imagen) ... ok
 
 ----------------------------------------------------------------------
-Ran 49 tests in 3.162s
+Ran 49 tests in 2.988s
 
 OK
 
-==================================================================
-2. PUNTO DE ACCESO EN MODO SIMULADO (usuario Oracle u_punto, sin camara)
-==================================================================
+=== 2. PUNTO DE ACCESO EN MODO SIMULADO (u_punto, sin camara)
 
 $ python src/punto_acceso.py --simular 90000001 --rostro-ok 1 --confianza 21.5
 Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
@@ -72,7 +67,7 @@ Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
   Persona   : Ricardo Salas Medina (vigilante)
   Punto     : 1
   Confianza : 21.50 (menor es mejor)
-  Registro  : #1542
+  Registro  : #1557
 ========================================================
 
 $ python src/punto_acceso.py --simular 25200001 --rostro-ok 0 --confianza 68.5
@@ -83,7 +78,7 @@ Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
   Punto     : 1
   Confianza : 68.50 (menor es mejor)
   Motivo    : rostro_no_coincide - El rostro no coincide con el del QR.
-  Registro  : #1543
+  Registro  : #1558
 ========================================================
 
 $ python src/punto_acceso.py --simular 00000000
@@ -93,7 +88,7 @@ Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
   Codigo    : 00000000 (no registrado)
   Punto     : 1
   Motivo    : codigo_inexistente - El codigo no esta registrado.
-  Registro  : #1544
+  Registro  : #1559
 ========================================================
 
 $ python src/punto_acceso.py --simular 25200009 --rostro-ok 1 --confianza 20
@@ -103,7 +98,7 @@ Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
   Persona   : Camila Rojas Prado (estudiante)
   Punto     : 1
   Motivo    : persona_inactiva - La persona esta inactiva o suspendida.
-  Registro  : #1545
+  Registro  : #1560
 ========================================================
 
 $ python src/punto_acceso.py --simular 25200010 --rostro-ok 1 --confianza 23
@@ -114,7 +109,7 @@ Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
   Punto     : 1
   Confianza : 23.00 (menor es mejor)
   Motivo    : persona_restringida - Persona con restriccion vigente. Se genero una incidencia.
-  Registro  : #1546
+  Registro  : #1561
 ========================================================
 
 $ python src/punto_acceso.py --simular 25200003 --rostro-ok 1 --confianza 22 --punto 7
@@ -125,7 +120,7 @@ Punto de control 7 | umbral LBPH 40 | usuario Oracle u_punto
   Punto     : 7
   Confianza : 22.00 (menor es mejor)
   Motivo    : zona_no_autorizada - No esta autorizado para esta zona.
-  Registro  : #1547
+  Registro  : #1562
 ========================================================
 
 $ python src/punto_acceso.py --simular 99000002 --rostro-ok 1 --confianza 26
@@ -136,18 +131,14 @@ Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
   Punto     : 1
   Confianza : 26.00 (menor es mejor)
   Motivo    : sin_pase_vigente - No tiene un pase vigente para esta zona.
-  Registro  : #1548
+  Registro  : #1563
 ========================================================
 
 $ python src/punto_acceso.py --simular 90000001 --punto 99
 Punto de control 99 | umbral LBPH 40 | usuario Oracle u_punto
 No se pudo registrar el acceso: El punto de control 99 no existe
 
-==================================================================
-3. ERROR DE CAMARA CONTROLADO (indice 99 inexistente)
-==================================================================
-
-$ CAMERA_INDEX=99 python src/punto_acceso.py --una-vez
+=== 3. ERROR DE CAMARA CONTROLADO (indice 99 inexistente)
 
 > must be less than
 
@@ -156,13 +147,9 @@ Punto de control 1 | umbral LBPH 40 | usuario Oracle u_punto
 
 Acerque su codigo QR a la camara (ESC para salir)...
 Error de camara: No se pudo abrir la camara 99. Revise la conexion o CAMERA_INDEX en .env.
-codigo de salida: 3
+codigo de salida: 
 
-==================================================================
-4. MENU DE CONSOLA: panel de administracion (usuario Oracle u_admin)
-==================================================================
-
-Entradas: 3 (panel), 3.2 (buscar) con texto 'Torres', 0, 0
+=== 4. MENU DE CONSOLA: panel de administracion (u_admin)
 
 +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
 	MENU PRINCIPAL
@@ -203,7 +190,6 @@ Selecciona una opcion: Redireccionando ...
 +~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
 
 Seleccione una opcion: Saliendo del programa ...
-
 --- Sin DB_PASSWORD_ADMIN el menu pide la clave y rechaza las incorrectas
 Credenciales incorrectas. 2 intentos restantes.
 Credenciales incorrectas. 1 intentos restantes.

@@ -1,17 +1,14 @@
+# Entorno y dependencias
 venv/
-qrcodes/
-faces/
-src/__pycache__/
-face_recognition_app/models/
-face_recognition_app/faces/
-alumnos.csv
-
-
-
+.venv/
 .env
 __pycache__/
 *.pyc
-.venv/
+
+# Datos biometricos y personales (nunca se versionan)
 datos/
+faces/
+qrcodes/
+face_recognition_app/
 *.yml
-alumnos.csv
+*.csv

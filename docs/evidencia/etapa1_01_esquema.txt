@@ -136,6 +136,8 @@ OBJECT_NAME	     OBJECT_TYPE	     STATUS
 -------------------- ----------------------- -------
 F_DESFASE	     FUNCTION		     VALID
 F_HOY_LOCAL	     FUNCTION		     VALID
+F_PARAMETRO	     FUNCTION		     INVALID
+F_PARAMETRO_NUM      FUNCTION		     INVALID
 
 
 === Errores de compilacion (debe salir vacio) ===

@@ -5,7 +5,7 @@
 
 HORA_SERVIDOR	    HORA_
 ------------------- -----
-2026-10-27 20:56:34 15:56
+2026-10-31 21:06:00 16:06
 
 =====================================================================
 1. p_verificar_persona
@@ -58,7 +58,7 @@ RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
 denegado   zona_no_autorizada	       1509
 -- 2.6 ventana del estudiante en la puerta fuera de la hora actual: fuera_de_horario
-Hora local 15:56: ventana de la puerta movida fuera de la hora actual
+Hora local 16:06: ventana de la puerta movida fuera de la hora actual
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
@@ -108,7 +108,7 @@ permitido  -			       1516
 
 CODIGO	  ESTADO	HORA	  ID_ACCESO
 --------- ------------- --------- ---------
-25200001  presente	20:56:34       1516
+25200001  presente	21:06:00       1516
 -- 4.3 repetir con 25200001: permitido, pero NO se duplica la asistencia
 
 RESULTADO  MOTIVO		  ID_ACCESO
@@ -137,8 +137,8 @@ permitido  -			       1520
 
 CODIGO	  ESTADO	HORA	  ID_ACCESO
 --------- ------------- --------- ---------
-25200001  presente	20:56:34       1516
-25200002  tardanza	20:56:34       1518
+25200001  presente	21:06:00       1516
+25200002  tardanza	21:06:01       1518
 
 =====================================================================
 5. INTENTOS REITERADOS (codigo 12345678, 3 denegados seguidos en la puerta)
@@ -180,8 +180,8 @@ ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN     DESCRIPCION
 
 CODIGO	  ESTADO	HORA
 --------- ------------- ---------
-25200001  presente	20:56:34
-25200002  tardanza	20:56:34
+25200001  presente	21:06:00
+25200002  tardanza	21:06:01
 25200003  falta
 25200005  falta
 25200006  falta
@@ -240,7 +240,7 @@ FECHA_REGISTRO								    ESCUELA												      CICLO
 ESPECIALIDAD
 ----------------------------------------------------------------------------------------------------
       1000 25200012  Persona Modificada 	75000099 modificada@campus.test 									      estudiante		   activo
-27-OCT-26 03.56.34.865110000 PM 					    Ingenieria de Sistemas											  3
+31-OCT-26 04.06.01.904267000 PM 					    Ingenieria de Sistemas											  3
 
 
 -- 7.5 p_listar_personas: total de filas
@@ -249,7 +249,7 @@ p_listar_personas devolvio 18 filas (17 de la carga + 1 de prueba)
 
 ID_RESTRICCION
 --------------
-	  1001
+	  1020
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
@@ -261,7 +261,7 @@ persona_restringida	     alta      abierta	     sistema
 
 ID_RESTRICCION ESTADO	     FECHA_FIN
 -------------- ------------- ----------------
-	  1001 levantada     2026-10-27 20:56
+	  1020 levantada     2026-10-31 21:06
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
@@ -270,7 +270,7 @@ permitido  -			       1526
 
    ID_PASE
 ----------
-      1002
+      1020
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
@@ -278,7 +278,7 @@ permitido  -			       1527
 
    ID_PASE ESTADO
 ---------- -------------
-      1002 revocado
+      1020 revocado
 
 RESULTADO  MOTIVO		  ID_ACCESO
 ---------- ---------------------- ---------
@@ -292,7 +292,7 @@ ID_INCIDENCIA
 ID_INCIDENCIA TIPO			   GRAVEDAD  ESTADO	   ORIGEN     DESCRIPCION
 ------------- ---------------------------- --------- ------------- ---------- ----------------------------------------------------------------------
 	 1008 puerta_laboratorio_abierta   media     resuelta	   vigilante  Puerta del laboratorio abierta fuera de horario | en_revision 2026-10-
-									      27 20:56: Se avisa al encargado | resuelta 2026-10-27 20:56: Puerta ce
+									      31 21:06: Se avisa al encargado | resuelta 2026-10-31 21:06: Puerta ce
 									      rrada con llave
 
 -- 7.9 p_eliminar_persona: 25200012 tiene accesos, entonces baja logica

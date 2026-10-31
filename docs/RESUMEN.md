@@ -210,6 +210,8 @@ Los roles **solo tienen `EXECUTE` sobre procedimientos; ninguno tiene privilegio
 | `u_docente` | `rol_docente` | Reportes de asistencia y la lista de secciones y sesiones |
 | `u_admin` | `rol_admin` | Todos los procedimientos y funciones |
 
+En `test_05_06.sql` aparecen dos errores a propósito: `ORA-00942` (7 veces) significa que el rol no tiene privilegios sobre las tablas, y `PLS-00201` (9 veces) que el rol no tiene `EXECUTE` sobre ese procedimiento. Ambos demuestran que los permisos funcionan.
+
 Total de `EXECUTE`: punto de control 3, docente 6, vigilante 19 y administrador 38. El punto de acceso y el panel web se conectan con estos mismos usuarios.
 
 | Tablespace | Tamaño inicial / máximo | Contenido |

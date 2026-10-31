@@ -164,7 +164,7 @@ permitido  -				1531
 
    ID_PASE
 ----------
-      1003
+      1021
 -- 3.3 incidencias: registrar y resolver
 
 ID_INCIDENCIA
@@ -175,47 +175,47 @@ ID_INCIDENCIA
 
 MOTIVO		       ZONA		      TOTAL CODIGOS_DISTINTOS PRIMERO	       ULTIMO
 ---------------------- ---------------------- ----- ----------------- ---------------- ----------------
-codigo_inexistente     Puerta Principal 	  5		    2 2026-10-27 15:56 2026-10-27 15:56
-codigo_inexistente     Subtotal del motivo	  5		    2 2026-10-27 15:56 2026-10-27 15:56
-fuera_de_horario       Puerta Principal 	  1		    1 2026-10-27 15:56 2026-10-27 15:56
-fuera_de_horario       Subtotal del motivo	  1		    1 2026-10-27 15:56 2026-10-27 15:56
-persona_inactiva       Puerta Principal 	  2		    2 2026-10-27 15:56 2026-10-27 15:56
-persona_inactiva       Subtotal del motivo	  2		    2 2026-10-27 15:56 2026-10-27 15:56
-persona_restringida    Puerta Principal 	  2		    2 2026-10-27 15:56 2026-10-27 15:56
-persona_restringida    Subtotal del motivo	  2		    2 2026-10-27 15:56 2026-10-27 15:56
-rostro_no_coincide     Puerta Principal 	  1		    1 2026-10-27 15:56 2026-10-27 15:56
-rostro_no_coincide     Subtotal del motivo	  1		    1 2026-10-27 15:56 2026-10-27 15:56
-sin_pase_vigente       Aula A-101		  2		    2 2026-10-27 15:56 2026-10-27 15:56
-sin_pase_vigente       Puerta Principal 	  1		    1 2026-10-27 15:56 2026-10-27 15:56
-sin_pase_vigente       Subtotal del motivo	  3		    2 2026-10-27 15:56 2026-10-27 15:56
-zona_no_autorizada     Oficina de Administrac	  1		    1 2026-10-27 15:56 2026-10-27 15:56
+codigo_inexistente     Puerta Principal 	  5		    2 2026-10-31 16:06 2026-10-31 16:06
+codigo_inexistente     Subtotal del motivo	  5		    2 2026-10-31 16:06 2026-10-31 16:06
+fuera_de_horario       Puerta Principal 	  1		    1 2026-10-31 16:06 2026-10-31 16:06
+fuera_de_horario       Subtotal del motivo	  1		    1 2026-10-31 16:06 2026-10-31 16:06
+persona_inactiva       Puerta Principal 	  2		    2 2026-10-31 16:06 2026-10-31 16:06
+persona_inactiva       Subtotal del motivo	  2		    2 2026-10-31 16:06 2026-10-31 16:06
+persona_restringida    Puerta Principal 	  2		    2 2026-10-31 16:06 2026-10-31 16:06
+persona_restringida    Subtotal del motivo	  2		    2 2026-10-31 16:06 2026-10-31 16:06
+rostro_no_coincide     Puerta Principal 	  1		    1 2026-10-31 16:06 2026-10-31 16:06
+rostro_no_coincide     Subtotal del motivo	  1		    1 2026-10-31 16:06 2026-10-31 16:06
+sin_pase_vigente       Aula A-101		  2		    2 2026-10-31 16:06 2026-10-31 16:06
+sin_pase_vigente       Puerta Principal 	  1		    1 2026-10-31 16:06 2026-10-31 16:06
+sin_pase_vigente       Subtotal del motivo	  3		    2 2026-10-31 16:06 2026-10-31 16:06
+zona_no_autorizada     Oficina de Administrac	  1		    1 2026-10-31 16:06 2026-10-31 16:06
 		       ion
 
-zona_no_autorizada     Subtotal del motivo	  1		    1 2026-10-27 15:56 2026-10-27 15:56
-TOTAL GENERAL	       -			 15		    9 2026-10-27 15:56 2026-10-27 15:56
+zona_no_autorizada     Subtotal del motivo	  1		    1 2026-10-31 16:06 2026-10-31 16:06
+TOTAL GENERAL	       -			 15		    9 2026-10-31 16:06 2026-10-31 16:06
 -- 3.4b consultas del panel: resumen del dia, bitacora de denegados y restricciones vigentes
 
 FECHA_HORA_LOCAL ACCESOS_HOY PERMITIDOS_HOY DENEGADOS_HOY PERSONAS_HOY INCIDENCIAS_ABIERTAS INCIDENCIAS_ALTAS SESIONES_EN_CURSO PASES_VIGENTES RESTRICCIONES_VIGENTES
 ---------------- ----------- -------------- ------------- ------------ -------------------- ----------------- ----------------- -------------- ----------------------
-2026-10-27 15:56	  38		 23	       15	    14			  5		    3		      0 	     1			    1
+2026-10-31 16:06	  38		 23	       15	    14			  5		    3		      0 	     1			    1
 
  ID_ACCESO FECHA_HORA	       CODIGO	 PERSONA											      TIPO_PERSONA    ZONA
 ---------- ------------------- --------- ---------------------------------------------------------------------------------------------------- --------------- ----------------------
 PUNTO										 RESULTADO  MOTIVO		   METODO	 CONFIANZA
 -------------------------------------------------------------------------------- ---------- ---------------------- ------------ ----------
-      1529 2026-10-27 15:56:35 25200012  Persona Modificada										      estudiante      Puerta Principal
+      1529 2026-10-31 16:06:02 25200012  Persona Modificada										      estudiante      Puerta Principal
 Puerta ingreso									 denegado   persona_inactiva	   simulado		22
 
-      1528 2026-10-27 15:56:35 99000002  Hugo Villanueva Rey										      visitante       Aula A-101
+      1528 2026-10-31 16:06:02 99000002  Hugo Villanueva Rey										      visitante       Aula A-101
 Aula A-101									 denegado   sin_pase_vigente	   simulado		26
 
-      1525 2026-10-27 15:56:34 25200012  Persona Modificada										      estudiante      Puerta Principal
+      1525 2026-10-31 16:06:02 25200012  Persona Modificada										      estudiante      Puerta Principal
 Puerta ingreso									 denegado   persona_restringida    simulado		22
 
 
 ID_RESTRICCION CODIGO	 NOMBRE 		  MOTIVO		 DESDE		  HASTA
 -------------- --------- ------------------------ ---------------------- ---------------- ----------------
-	  1000 25200010  Miguel Navarro Pinto	  Sancion disciplinaria  2026-10-22 00:00 indefinida
+	  1000 25200010  Miguel Navarro Pinto	  Sancion disciplinaria  2026-10-26 00:00 indefinida
 						  pendiente de resolucio
 						  n
 
@@ -286,7 +286,7 @@ ESPECIALIDAD
 ----------------------------------------------------------------------------------------------------
       1002 88000001  Auditoria Prueba Uno Mod 88000001 aud1.nuevo@campus.test										    visitante	 inactivo
 		     ificada
-27-OCT-26 03.56.38.758835000 PM
+31-OCT-26 04.06.06.531568000 PM
 
 
 
@@ -297,8 +297,8 @@ ANFITRION											     ZONA_DESTINO								      DESDE
 HASTA		 HORAS_RESTANTES MOTIVO
 ---------------- --------------- ----------------------
       1000 99000001 Elena Paz Cardenas
-Carlos Mendoza Rios										     Biblioteca Central 							      2026-10-27 14:56
-2026-10-28 15:56	      24 Consulta bibliografica
+Carlos Mendoza Rios										     Biblioteca Central 							      2026-10-31 15:06
+2026-11-01 16:06	      24 Consulta bibliografica
 				  para investigacion
 
 -- 4.4 aun siendo administrador no tiene acceso directo a las tablas (ORA-00942)
@@ -315,26 +315,26 @@ ORA-00942: table or view does not exist
 
 ID_AUDITORIA TABLA	    OPERACION USUARIO	     HORA      DETALLE
 ------------ -------------- --------- -------------- --------- ---------------------------------------------------------------------------------------------------------
-	1000 PERSONAS	    INSERT    ACCESO_OWNER   20:56:34  id=1000 codigo=25200012 tipo=estudiante estado=activo nombre=Persona de Prueba
-	1001 PERSONAS	    UPDATE    ACCESO_OWNER   20:56:34  id=1000 codigo=25200012 | nombre: [Persona de Prueba] -> [Persona Modificada] correo:
+	1000 PERSONAS	    INSERT    ACCESO_OWNER   21:06:01  id=1000 codigo=25200012 tipo=estudiante estado=activo nombre=Persona de Prueba
+	1001 PERSONAS	    UPDATE    ACCESO_OWNER   21:06:01  id=1000 codigo=25200012 | nombre: [Persona de Prueba] -> [Persona Modificada] correo:
 							       [prueba@campus.test] -> [modificada@campus.test]
 
-	1002 RESTRICCIONES  INSERT    ACCESO_OWNER   20:56:34  id_restriccion=1001 persona=1000 estado=vigente fecha_fin= motivo=Restriccion de prueba
-	1003 RESTRICCIONES  UPDATE    ACCESO_OWNER   20:56:34  id_restriccion=1001 persona=1000 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-27 20:56]
-	1004 PERSONAS	    UPDATE    ACCESO_OWNER   20:56:35  id=1000 codigo=25200012 | estado: [activo] -> [inactivo]
-	1005 PERSONAS	    INSERT    ACCESO_OWNER   20:56:35  id=1001 codigo=25200013 tipo=administrativo estado=activo nombre=Persona Sin Historial
-	1006 PERSONAS	    DELETE    ACCESO_OWNER   20:56:35  id=1001 codigo=25200013 tipo=administrativo estado=activo nombre=Persona Sin Historial
-	1007 RESTRICCIONES  INSERT    U_VIGILANTE    20:56:38  id_restriccion=1002 persona=31 estado=vigente fecha_fin= motivo=Prueba de permisos del vigilante
-	1008 RESTRICCIONES  UPDATE    U_VIGILANTE    20:56:38  id_restriccion=1002 persona=31 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-27 20:56]
-	1009 PERSONAS	    INSERT    U_ADMIN	     20:56:38  id=1002 codigo=88000001 tipo=visitante estado=activo nombre=Auditoria Prueba Uno
-	1010 PERSONAS	    UPDATE    U_ADMIN	     20:56:38  id=1002 codigo=88000001 | nombre: [Auditoria Prueba Uno] -> [Auditoria Prueba Uno Modificada] correo:
+	1002 RESTRICCIONES  INSERT    ACCESO_OWNER   21:06:02  id_restriccion=1020 persona=1000 estado=vigente fecha_fin= motivo=Restriccion de prueba
+	1003 RESTRICCIONES  UPDATE    ACCESO_OWNER   21:06:02  id_restriccion=1020 persona=1000 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-31 21:06]
+	1004 PERSONAS	    UPDATE    ACCESO_OWNER   21:06:02  id=1000 codigo=25200012 | estado: [activo] -> [inactivo]
+	1005 PERSONAS	    INSERT    ACCESO_OWNER   21:06:02  id=1001 codigo=25200013 tipo=administrativo estado=activo nombre=Persona Sin Historial
+	1006 PERSONAS	    DELETE    ACCESO_OWNER   21:06:02  id=1001 codigo=25200013 tipo=administrativo estado=activo nombre=Persona Sin Historial
+	1007 RESTRICCIONES  INSERT    U_VIGILANTE    21:06:06  id_restriccion=1021 persona=31 estado=vigente fecha_fin= motivo=Prueba de permisos del vigilante
+	1008 RESTRICCIONES  UPDATE    U_VIGILANTE    21:06:06  id_restriccion=1021 persona=31 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-31 21:06]
+	1009 PERSONAS	    INSERT    U_ADMIN	     21:06:06  id=1002 codigo=88000001 tipo=visitante estado=activo nombre=Auditoria Prueba Uno
+	1010 PERSONAS	    UPDATE    U_ADMIN	     21:06:06  id=1002 codigo=88000001 | nombre: [Auditoria Prueba Uno] -> [Auditoria Prueba Uno Modificada] correo:
 							       [aud1@campus.test] -> [aud1.nuevo@campus.test]
 
-	1011 RESTRICCIONES  INSERT    U_ADMIN	     20:56:38  id_restriccion=1003 persona=1002 estado=vigente fecha_fin= motivo=Prueba de auditoria
-	1012 RESTRICCIONES  UPDATE    U_ADMIN	     20:56:38  id_restriccion=1003 persona=1002 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-27 20:56]
-	1013 PERSONAS	    UPDATE    U_ADMIN	     20:56:38  id=1002 codigo=88000001 | estado: [activo] -> [inactivo]
-	1014 PERSONAS	    INSERT    U_ADMIN	     20:56:38  id=1003 codigo=88000002 tipo=visitante estado=activo nombre=Auditoria Prueba Dos
-	1015 PERSONAS	    DELETE    U_ADMIN	     20:56:38  id=1003 codigo=88000002 tipo=visitante estado=activo nombre=Auditoria Prueba Dos
+	1011 RESTRICCIONES  INSERT    U_ADMIN	     21:06:06  id_restriccion=1022 persona=1002 estado=vigente fecha_fin= motivo=Prueba de auditoria
+	1012 RESTRICCIONES  UPDATE    U_ADMIN	     21:06:06  id_restriccion=1022 persona=1002 | estado: [vigente] -> [levantada] fecha_fin: [] -> [2026-10-31 21:06]
+	1013 PERSONAS	    UPDATE    U_ADMIN	     21:06:06  id=1002 codigo=88000001 | estado: [activo] -> [inactivo]
+	1014 PERSONAS	    INSERT    U_ADMIN	     21:06:06  id=1003 codigo=88000002 tipo=visitante estado=activo nombre=Auditoria Prueba Dos
+	1015 PERSONAS	    DELETE    U_ADMIN	     21:06:06  id=1003 codigo=88000002 tipo=visitante estado=activo nombre=Auditoria Prueba Dos
 
 Resumen por usuario y operacion
 

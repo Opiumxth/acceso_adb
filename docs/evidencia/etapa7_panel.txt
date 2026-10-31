@@ -1,11 +1,8 @@
 ETAPA 7 - Panel web Flask (salida real)
-Fecha del equipo: 2026-10-27 15:57:10   Python 3.12.3
+Fecha del equipo: 2026-10-31 16:07:14   Python 3.12.3
 Flask 3.1.3 | Werkzeug 3.1.9 | Jinja2 3.1.2 | oracledb 26.1.0
 
-==================================================================
-1. PRUEBAS AUTOMATICAS DEL PANEL (Flask test client + Oracle real)
-   ./venv/bin/python -m unittest tests.test_panel -v
-==================================================================
+=== 1. PRUEBAS DEL PANEL: ./venv/bin/python -m unittest tests.test_panel -v
 test_filtro_por_resultado (tests.test_panel.TestAccesos.test_filtro_por_resultado) ... ok
 test_filtro_por_texto_y_zona (tests.test_panel.TestAccesos.test_filtro_por_texto_y_zona) ... ok
 test_la_bitacora_trae_los_ultimos_dias (tests.test_panel.TestAccesos.test_la_bitacora_trae_los_ultimos_dias) ... ok
@@ -72,22 +69,17 @@ test_una_persona_no_puede_tener_dos_restricciones_vigentes (tests.test_panel.Tes
 test_una_restriccion_registrada_en_el_panel_bloquea_en_el_punto_de_control (tests.test_panel.TestRestricciones.test_una_restriccion_registrada_en_el_panel_bloquea_en_el_punto_de_control) ... ok
 
 ----------------------------------------------------------------------
-Ran 64 tests in 22.281s
+Ran 64 tests in 16.847s
 
 OK
 
-==================================================================
-2. SUITE COMPLETA (Etapa 6 + Etapa 7)
-   ./venv/bin/python -m unittest discover -s tests
-==================================================================
+=== 2. SUITE COMPLETA: ./venv/bin/python -m unittest discover -s tests
 ----------------------------------------------------------------------
-Ran 113 tests in 20.920s
+Ran 113 tests in 19.629s
 
 OK
 
-==================================================================
-3. MATRIZ DE PANTALLAS POR ROL (codigo HTTP; 200 = permitido, 403 = sin permiso)
-==================================================================
+=== 3. MATRIZ DE PANTALLAS POR ROL (200 = permitido, 403 = sin permiso)
 pantalla                             admin  vigilante  docente
 /                                      200        200      200
 /personas                              200        200      403

@@ -233,6 +233,10 @@ Total de `EXECUTE` por rol: punto de control 3, docente 6, vigilante 19 y admini
 
 Bitácora generada por los triggers (16 filas): `ACCESO_OWNER` (las pruebas de `test_03`) hizo 2 `INSERT`, 2 `UPDATE` y 1 `DELETE` sobre `PERSONAS` y 1 `INSERT` y 1 `UPDATE` sobre `RESTRICCIONES`; `U_ADMIN` hizo lo mismo; `U_VIGILANTE` hizo 1 `INSERT` y 1 `UPDATE` sobre `RESTRICCIONES`. En total aparecen 7 errores `ORA-00942` y 9 `PLS-00201`, todos esperados.
 
+**Errores esperados en `test_05_06.sql`** (son la prueba de que los permisos funcionan):
+- `ORA-00942: table or view does not exist` significa que el rol **no tiene privilegios sobre las tablas**: para Oracle la tabla no existe para ese usuario. Aparece 7 veces (por ejemplo `u_punto` haciendo `select` sobre `accesos`).
+- `PLS-00201: identifier ... must be declared` significa que el rol **no tiene `EXECUTE` sobre ese procedimiento**. Aparece 9 veces (por ejemplo `u_docente` llamando a `p_registrar_acceso`).
+
 ### Evidencia
 
 - `docs/evidencia/permisos.txt`
@@ -282,7 +286,7 @@ Se retiraron `acceder.py` y `verificar_codigo_en_csv.py`: los reemplazan `punto_
 
 ```
 python3 -m venv venv && ./venv/bin/pip install -r requirements.txt
-cp .env.example .env        # completar las claves (están en sql/00_admin.sql)
+cp .env.example .env        # ya trae las claves de demostración (las de Oracle salen de sql/00_admin.sql)
 
 ./venv/bin/python src/main.py                     # menú de consola
 ./venv/bin/python src/punto_acceso.py             # punto de acceso (modo kiosco)
